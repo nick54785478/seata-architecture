@@ -1,9 +1,9 @@
-# Spring Boot 4.1.0 + Spring Data JPA 微服務分散式事務架構設計文件
+# Spring Boot 3.3.4 + Spring Data JPA 微服務分散式事務架構設計文件
 
 > **版本資訊**：
-> - 基礎框架：Spring Boot 4.1.0 (Java 21+, Jakarta EE 11 / JPA 3.2, Hibernate 7.x)
-> - 服務治理：Spring Cloud 2024.x (OpenFeign)
-> - 分散式事務：Apache Seata 2.x+ (AT 模式 + TCC 模式混合架構)
+> - 基礎框架：Spring Boot 3.3.4 (Java 21+, Jakarta EE 10 / JPA 3.1, Hibernate 6.5+)
+> - 服務治理：Spring Cloud 2023.0.3 (OpenFeign)
+> - 分散式事務：Apache Seata 2.0.0 (AT 模式 + TCC 模式混合架構)
 > - 持久層：Spring Data JPA (Hibernate 底層實作)
 > - 儲存引擎：MySQL 8.0+
 
@@ -48,9 +48,9 @@ flowchart TD
 
 ---
 
-## 三、 Spring Data JPA (Hibernate 7.x) 整合核心關鍵點
+## 三、 Spring Data JPA (Hibernate 6.5+) 整合核心關鍵點
 
-在 Spring Boot 4.x / JPA 環境下使用 Seata，與常見的 MyBatis 有顯著不同的機制，必須在設計時予以解決：
+在 Spring Boot 3.x / JPA 環境下使用 Seata，與常見的 MyBatis 有顯著不同的機制，必須在設計時予以解決：
 
 ```mermaid
 graph LR
@@ -76,7 +76,7 @@ graph LR
    - 避免使用 `GenerationType.IDENTITY`（依賴資料庫自增可能導致 JPA 在 `persist` 時被迫提前打斷批處理以獲取 ID）。
    - **架構規範**：全面採用應用層**雪花演算法（Snowflake ID）**或 `GenerationType.SEQUENCE`，使實體在持久化前即具備明確主鍵，方便 Seata 精準鎖定行記錄。
 3. **資料源代理配置**：
-   - Spring Boot 4.x 中引入 Jakarta EE 命名空間（`jakarta.persistence.*`），確保 HikariCP 數據源被 Seata `DataSourceProxy` 正確包裝。
+   - Spring Boot 3.x 中引入 Jakarta EE 命名空間（`jakarta.persistence.*`），確保 HikariCP 數據源被 Seata `DataSourceProxy` 正確包裝。
 
 ---
 
@@ -504,6 +504,6 @@ seata:
 
 ## 七、 架構總結與亮點
 
-1. **Spring Boot 4.1.0 + Jakarta JPA 規範落地**：明確解決了 JPA 一級快取與延遲 Flush 與 Seata AT 模式 SQL 截獲的衝突問題。
+1. **Spring Boot 3.3.4 + Jakarta JPA 規範落地**：明確解決了 JPA 一級快取與延遲 Flush 與 Seata AT 模式 SQL 截獲的衝突問題。
 2. **多模式協同實戰**：打破單一 AT 模式的教條，在庫存採用 **AT 模式（零代碼侵入）**，在錢包帳戶採用 **TCC 模式（高吞吐量金融預留模型）**，架構設計極具實戰說服力。
 3. **高健全度防護**：TCC 模組完整體現了**防空回滾**、**防業務懸掛**與**二階段冪等性**三大分散式核心防禦機制。

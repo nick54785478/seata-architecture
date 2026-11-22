@@ -1,6 +1,6 @@
 # Apache Seata 分散式事務架構全景與企業級落地實戰
 
-> **基於 Java 21、Spring Boot 3.3.4、Spring Cloud 2023、Apache Seata 2.0.0、領域驅動設計 (DDD) 與六角形架構 (Clean Architecture) 的高可用微服務分散式事務示範專案。**
+> **本專案聚焦於 Apache Seata 分散式事務技術的企業級落地實戰。以電商「下單 - 扣減庫存 (AT) - 劃扣錢包 (TCC)」為核心業務切片，深度整合 Java 21、Spring Boot 3.3.4、Spring Cloud 2023、領域驅動設計 (DDD) 與六角形架構 (Clean Architecture)，提供高可用、高強韌性之分散式事務解決方案。**
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
@@ -12,6 +12,10 @@
 
 ## 目錄導引
 
+- [什麼是 Apache Seata 分散式事務？](#什麼是-apache-seata-分散式事務)
+  - [1. 為什麼微服務需要分散式事務？](#1-為什麼微服務需要分散式事務)
+  - [2. Seata 三大核心角色 (TC / TM / RM)](#2-seata-三大核心角色-tc--tm--rm)
+  - [3. Seata 四大事務模式與本專案選型 (AT + TCC 混合實作)](#3-seata-四大事務模式與本專案選型-at--tcc-混合實作)
 - [一、 專案核心特色與架構準則](#一-專案核心特色與架構準則)
 - [二、 系統全景與服務拓撲](#二-系統全景與服務拓撲)
 - [三、 業務與 RPC API 快速規格表](#三-業務與-rpc-api-快速規格表)
@@ -19,6 +23,88 @@
 - [五、 端到端 (E2E) 核心測試情境](#五-端到端-e2e-核心測試情境)
 - [六、 專案目錄與模組職責說明](#六-專案目錄與模組職責說明)
 - [七、 深度架構文檔導覽 (Docs Index)](#七-深度架構文檔導覽-docs-index)
+
+---
+
+## 什麼是 Apache Seata 分散式事務？
+
+### 1. 為什麼微服務需要分散式事務？
+
+在傳統單體架構中，所有業務操作共享同一個資料庫實體，資料的一致性（ACID 特性）可直接依賴關聯式資料庫的本地事務機制。
+
+然而在**微服務架構**下，系統依據業務邊界被拆解為多個自治服務，並實施 **Database-per-Service（每服務獨立資料庫）** 架構（例如：訂單庫 `seata_order`、庫存庫 `seata_storage`、帳戶庫 `seata_account`）。服務間透過網路 RPC（如 OpenFeign、REST API）通訊：
+- **網路呼叫不確定性**：可能發生超時、丟包或節點崩潰。
+- **本地事務跨庫失效**：各微服務只能保證自身的本地事務，無法感知遠端服務的執行結果。若「訂單建立成功、庫存扣減成功，但帳戶服務因餘額不足扣款失敗」，傳統架構將導致庫存超賣與嚴重的資料不一致（Data Inconsistency）。
+
+為了解決跨微服務、跨獨立資料庫的資料最終一致性，**分散式事務 (Distributed Transaction)** 成為微服務架構不可或缺的核心基礎設施。
+
+---
+
+### 2. Seata 三大核心角色 (TC / TM / RM)
+
+**Apache Seata (Simple Extensible Autonomous Transaction Architecture)** 是一套開源的高效能、易於使用的分散式事務架構，致力於在微服務體系中提供輕量、無侵入且高可靠的全局事務解決方案。
+
+Seata 定義了三大核心角色協同完成全鏈路事務治理：
+1. **TC (Transaction Coordinator - 事務協調器)**：
+   - 作為獨立運行的中間件伺服器（Seata Server，本專案基於 Docker 容器執行於 `8091` / `7091`）。
+   - 維護全局事務與各分支事務的執行狀態，並根據全鏈路執行結果向所有分支驅動**二階段全局提交 (Global Commit)** 或**二階段全局回滾 (Global Rollback)**。
+2. **TM (Transaction Manager - 事務管理器)**：
+   - 嵌入在發起全局事務的業務發起端服務（本專案由 [order-service](file:///d:/桌面/MonoRepository/seata-architecture/order-service) 擔任）。
+   - 透過 `@GlobalTransactional` 註解宣告全局事務的邊界，向 TC 申請開啟全局事務（產生全局唯一 `XID`）、請求提交或發起回滾。
+3. **RM (Resource Manager - 資源管理器)**：
+   - 嵌入在各分支業務服務（本專案由 [storage-service](file:///d:/桌面/MonoRepository/seata-architecture/storage-service) 與 [account-service](file:///d:/桌面/MonoRepository/seata-architecture/account-service) 擔任）。
+   - 負責管理各分支事務處理的資源，向 TC 註冊分支事務並回報分支狀態，並依照 TC 的指令執行具體分支的提交或回滾操作。
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant TM as 事務發起端 [TM]<br/>(Order Service)
+    participant TC as 事務協調器 [TC]<br/>(Seata Server :8091)
+    participant RM_Storage as 分支資源 [RM 1]<br/>(Storage Service [AT])
+    participant RM_Account as 分支資源 [RM 2]<br/>(Account Service [TCC])
+
+    TM->>TC: 1. 開啟全局事務 (Begin Global Tx)
+    TC-->>TM: 回傳全局唯一 XID (全鏈路透過 HTTP Header 透傳)
+    TM->>RM_Storage: 2. RPC 調用扣減庫存 (攜帶 TX_XID)
+    RM_Storage->>TC: 3. 註冊 AT 分支事務 (寫入 undo_log)
+    RM_Storage-->>TM: 庫存扣減完成
+
+    TM->>RM_Account: 4. RPC 調用資金 Try (攜帶 TX_XID)
+    RM_Account->>TC: 5. 註冊 TCC 分支事務 (凍結款項)
+    RM_Account-->>TM: 資金凍結完成
+
+    alt 業務執行順利無異常
+        TM->>TC: 6a. 請求全局二階段提交 (Commit Global Tx)
+        par 非同步二階段提交
+            TC->>RM_Storage: 7a. AT Commit (非同步清理 undo_log)
+        and
+            TC->>RM_Account: 7b. TCC Confirm (正式劃扣資金，釋放凍結)
+        end
+    else 業務拋出異常 / 中斷 (如 simulateError 或餘額不足)
+        TM->>TC: 6b. 請求全局二階段回滾 (Rollback Global Tx)
+        par 非同步二階段自動補償
+            TC->>RM_Storage: 7c. AT Rollback (讀取 undo_log 反向還原庫存)
+        and
+            TC->>RM_Account: 7d. TCC Cancel (執行解凍邏輯，將款項退回餘額)
+        end
+    end
+```
+
+---
+
+### 3. Seata 四大事務模式與本專案選型 (AT + TCC 混合實作)
+
+Seata 支援四種事務模式，涵蓋不同的業務場景與效能權衡：
+
+| 模式 | 核心機制 | 業務侵入性 | 隔離性 | 適用場景 | 本專案實作應用 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **AT 模式** (Automatic) | 基於資料庫 `undo_log`，自動解析 SQL 截取前後鏡像 (`before-image` / `after-image`) 生成反向補償 SQL | **零侵入** | 讀已提交 (全局行鎖防髒寫) | 一般關聯式資料庫業務 (MySQL / PostgreSQL / Oracle) | **`order-service`** (本地訂單)<br/>**`storage-service`** (扣減庫存) |
+| **TCC 模式** (Try-Confirm-Cancel) | 業務手動實作一階段預留資源 (Try)、二階段劃扣 (Confirm) 與解凍 (Cancel) | **較高** | 業務層面邏輯隔離 | 高並發、跨異質系統、金融核心交易、非關聯式儲存 | **`account-service`** (資金凍結劃扣) |
+| **Saga 模式** | 長事務編排模式，由狀態機定義前向操作與逆向補償呼叫 | 中等 | 無隔離性 | 跨銀行、多方協作、長時間業務流程 | 參閱 [Saga 模式詳解](file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/02-transaction-modes.md) |
+| **XA 模式** | 基於資料庫原生 XA 規範強一致性協議 | **零侵入** | 強一致性 (持有底層資料庫鎖) | 金融級強一致性要求、低並發場景 | 參閱 [XA 模式詳解](file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/02-transaction-modes.md) |
+
+💡 **本專案的核心實戰價值**：
+企業在面對大型微服務架構時，往往需要兼顧**開發效率（庫存與訂單業務量大，優先採用無侵入的 AT 模式）**與**核心資產交易的高並發安全（錢包劃扣採用 TCC 模式，手動控制資源凍結，徹底規避資料庫全局行鎖競爭並解決懸掛與空回滾問題）**。本專案即為企業級 **AT + TCC 混合雙模式** 的最佳實踐範例。
 
 ---
 

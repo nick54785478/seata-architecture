@@ -1,0 +1,98 @@
+services:
+  # ========================================================
+  # 1. MySQL 8.0 數據庫 (預裝所有業務庫、undo_log 與 TC 表結構)
+  # ========================================================
+  mysql:
+    image: mysql:8.0.33
+    container_name: seata-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      TZ: Asia/Taipei
+    ports:
+      - "3307:3306"
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --lower_case_table_names=1
+      --max_connections=1000
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./scripts/sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ========================================================
+  # 2. Redis 7.2 快取與分散式鎖
+  # ========================================================
+  redis:
+    image: redis:7.2-alpine
+    container_name: seata-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
+  # ========================================================
+  # 3. Nacos 2.3 註冊中心與配置中心
+  # ========================================================
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: seata-nacos
+    environment:
+      - MODE=standalone
+      - PREFER_HOST_MODE=hostname
+      - JVM_XMS=512m
+      - JVM_XMX=512m
+      - NACOS_AUTH_ENABLE=false
+    ports:
+      - "8848:8848"   # HTTP 存取與控制台
+      - "9848:9848"   # Nacos 2.x gRPC 客戶端長連線
+      - "9849:9849"   # Nacos 2.x gRPC 服務端通訊
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ========================================================
+  # 4. Seata Server (自帶 MySQL 8 驅動開箱即用版)
+  # ========================================================
+  seata-server:
+    image: seataio/seata-server:1.8.0
+    container_name: seata-tc-server
+    restart: always
+    environment:
+      - SEATA_IP=127.0.0.1
+      - SEATA_PORT=8091
+      - STORE_MODE=db
+      - STORE_DB_DB_TYPE=mysql
+      - STORE_DB_DATASOURCE=druid
+      - STORE_DB_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - STORE_DB_URL=jdbc:mysql://mysql:3306/seata_server?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
+      - STORE_DB_USER=root
+      - STORE_DB_PASSWORD=root_password
+      - SEATA_STORE_DB_URL=jdbc:mysql://mysql:3306/seata_server?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
+      - SEATA_STORE_DB_USER=root
+      - SEATA_STORE_DB_PASSWORD=root_password
+      - SEATA_JVM_OPTS=-Dstore.db.dbType=mysql -Dstore.db.datasource=druid -Dstore.db.driverClassName=com.mysql.cj.jdbc.Driver -Dstore.db.url=jdbc:mysql://mysql:3306/seata_server?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true -Dstore.db.user=root -Dstore.db.password=root_password
+      - REGISTRY_TYPE=file
+      - CONFIG_TYPE=file
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/seata_server?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root_password
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SEATA_REGISTRY_NACOS_SERVER_ADDR=nacos:8848
+      - SEATA_REGISTRY_NACOS_GROUP=SEATA_GROUP
+    ports:
+      - "8091:8091"   # TC Netty RPC 埠
+      - "7091:7091"   # TC 管理控制台
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql-data:
+  redis-data:

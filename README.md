@@ -1,6 +1,6 @@
 # Apache Seata 分散式事務架構全景與企業級落地實戰
 
-> **本專案聚焦於 Apache Seata 分散式事務技術的企業級落地實戰。以電商「下單 - 扣減庫存 (AT) - 劃扣錢包 (TCC)」為核心業務切片，深度整合 Java 21、Spring Boot 3.3.4、Spring Cloud 2023、領域驅動設計 (DDD) 與六角形架構 (Clean Architecture)，提供高可用、高強韌性之分散式事務解決方案。**
+> **本專案為企業級微服務分散式事務與高強韌性架構的實戰參考設計。以電商「下單 - 扣減庫存 (AT) - 劃扣錢包 (TCC)」跨服務交易鏈路為業務切片，聚焦於「分散式資料最終一致性治理」、「零框架侵入之純粹領域驅動設計 (DDD)」與「六角形架構 (Ports & Adapters) 業務邊界隔離」，建構出高內聚、低耦合且具備自動二階段補償能力的高可靠微服務系統。**
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
@@ -16,13 +16,14 @@
   - [1. 為什麼微服務需要分散式事務？](#1-為什麼微服務需要分散式事務)
   - [2. Seata 三大核心角色 (TC / TM / RM)](#2-seata-三大核心角色-tc--tm--rm)
   - [3. Seata 四大事務模式與本專案選型 (AT + TCC 混合實作)](#3-seata-四大事務模式與本專案選型-at--tcc-混合實作)
-- [一、 專案核心特色與架構準則](#一-專案核心特色與架構準則)
-- [二、 系統全景與服務拓撲](#二-系統全景與服務拓撲)
-- [三、 業務與 RPC API 快速規格表](#三-業務與-rpc-api-快速規格表)
-- [四、 5 分鐘快速啟動與上手指南](#四-5-分鐘快速啟動與上手指南)
-- [五、 端到端 (E2E) 核心測試情境](#五-端到端-e2e-核心測試情境)
-- [六、 專案目錄與模組職責說明](#六-專案目錄與模組職責說明)
-- [七、 深度架構文檔導覽 (Docs Index)](#七-深度架構文檔導覽-docs-index)
+- [一、 核心架構設計理念與規範準則](#一-核心架構設計理念與規範準則)
+- [二、 技術棧與中介軟體整合矩陣](#二-技術棧與中介軟體整合矩陣)
+- [三、 系統全景與服務拓撲](#三-系統全景與服務拓撲)
+- [四、 業務與 RPC API 快速規格表](#四-業務與-rpc-api-快速規格表)
+- [五、 5 分鐘快速啟動與上手指南](#五-5-分鐘快速啟動與上手指南)
+- [六、 端到端 (E2E) 核心測試情境](#六-端到端-e2e-核心測試情境)
+- [七、 專案目錄與模組職責說明](#七-專案目錄與模組職責說明)
+- [八、 深度架構文檔導覽 (Docs Index)](#八-深度架構文檔導覽-docs-index)
 
 ---
 
@@ -108,27 +109,72 @@ Seata 支援四種事務模式，涵蓋不同的業務場景與效能權衡：
 
 ---
 
-## 一、 專案核心特色與架構準則
+## 一、 核心架構設計理念與規範準則 (Architectural Principles)
 
-本專案遵循嚴格的企業級設計準則（參見 [.agents/AGENTS.md](file:///d:/桌面/MonoRepository/seata-architecture/.agents/AGENTS.md)），完美融合分散式事務機制與純粹的領域模型：
+本專案遵循嚴格的架構治理與企業級設計規範（詳見 [.agents/AGENTS.md](file:///d:/桌面/MonoRepository/seata-architecture/.agents/AGENTS.md)），將分散式交易機制與純粹的領域模型完全解耦：
 
-1. **AT + TCC 混合分散式事務矩陣**：
-   - **Order Service (TM + AT RM)**：發起全局事務 (`@GlobalTransactional`)，協調全鏈路扣減庫存與資金預留。
-   - **Storage Service (AT RM)**：基於 Seata AT 模式，透過自動截取 `before-image` 與 `after-image` 寫入 `undo_log`，實現無業務侵入的二階段提交與回滾。
-   - **Account Service (TCC RM)**：基於 TCC 模式，實作一階段 `prepare` 預留凍結款項、二階段 `confirm` 劃扣與 `cancel` 自動解凍，內建防空回滾、防懸掛與冪等性控制表 (`t_tcc_transaction_record`)。
-2. **純粹的領域驅動設計 (Domain-Driven Design, DDD)**：
-   - 核心領域模型（`Order`, `Storage`, `Account`）採用 **Pure Java** 撰寫，**零框架依賴**、**零資料庫 ORM 侵入**，且聚合根內部**嚴格禁止 Lombok**，確保業務封裝性。
-3. **六角形架構 / Ports & Adapters (Clean Architecture)**：
-   - **Inbound Port**：應用層業務契約一律定義為 `UseCase`（如 `CreateOrderUseCase`, `GetStorageUseCase`）。
-   - **Outbound Port**：外部依賴一律定義為 `Port`（如 `OrderRepositoryPort`, `StorageClientPort`）。
-   - **純資料載體防腐機制**：Request (`V+N+Resource`) 與 Response (`N+Ved+Resource`) 不得包含轉換邏輯，一律交由 `assembler/` 負責轉換。
-4. **業務查詢 API 與自動數據初始化**：
-   - 各微服務皆具備商業語意的即時查詢 API，無須操作資料庫即可透過 HTTP / Swagger 驗證全鏈路狀態。
-   - 微服務啟動時自動透過 `DataInitializationConfig` 校準基準測試數據，重啟即回歸初始測試狀態。
+### 1. 跨微服務資料最終一致性架構 (AT + TCC 混合雙模式協同)
+- **業務切片定位**：採用「下單 (Order) - 扣減庫存 (Storage) - 劃扣錢包 (Account)」經典電商主鏈路，全面覆蓋分散式系統中最核心的長交易與資產安全訴求。
+- **事務管理器 (TM) 邊界治理**：由入口層 `order-service` 擔任 TM，以 `@GlobalTransactional` 定義全局事務邊界，向 TC 申請並獲取全局唯一事務識別碼 (`XID`)，並透過 HTTP Header (`TX_XID`) 跨 RPC 鏈路無縫傳播。
+- **資源管理器 (RM) 模式互補選型**：
+  - **庫存微服務 (Storage Service - AT 模式)**：對外開放無侵入扣減介面，由 Seata DataSourceProxy 自動截取 SQL 執行前後鏡像 (`before-image` / `after-image`) 並持久化至 `undo_log`，二階段由 TC 自動生成逆向補償 SQL，兼顧極高開發效率與可靠性。
+  - **帳戶微服務 (Account Service - TCC 模式)**：針對高並發、高靈敏度的資金交易，採用手動預留模型。一階段 Try 凍結可用餘額，二階段 Confirm 劃扣或 Cancel 解凍。內建事務控制表記錄 (`t_tcc_transaction_record`)，有效解決**空回滾 (Empty Rollback)**、**業務懸掛 (Suspension)** 與**重複回報冪等性 (Idempotency)**。
+
+### 2. 純粹領域驅動設計 (Domain-Driven Design, DDD)
+- **核心領域至上 (Core Domain First)**：商業規則、狀態變更不變性 (Invariants) 完全內聚於 `domain/` 聚合根中，對外完全隱蔽內部細節。
+- **技術無關性 (Framework Agnostic)**：`domain/` 層內部嚴格維持 **Pure Java**，嚴禁依賴任何技術框架（如 Spring 註解、JPA ORM 實體、Jackson 序列化註解等），確保領域模型不受外部基礎設施演進所污染。
+- **嚴格禁止 Lombok 破壞聚合根封裝**：Aggregate Root 內部**嚴禁使用 Lombok**（如 `@Data`, `@Getter`, `@Setter`），所有狀態轉換必須由具備明確業務語意的行為方法觸發（例如 `storage.deduct(count)`、`account.freeze(amount)`），確保業務封裝邊界的完整性。
+- **垂直切片架構 (Vertical Slice Architecture)**：Domain Layer 依據 Aggregate 聚合邊界切片，專屬的 `aggregate/` (Root, Entity, VO)、`event/` (Domain Events) 與 `exception/` (領域專屬例外) 緊密內聚於該聚合目錄下。
+
+### 3. 六角形架構 (Hexagonal / Ports & Adapters Architecture) 與防腐機制
+- **Inbound Port (應用契約)**：所有對外業務開放能力一律宣告於 `port/in/`，並以 `UseCase` 命名稱謂（如 `CreateOrderUseCase`、`GetStorageUseCase`），純粹接收 Command/Query 並返回 DTO/Result。
+- **Outbound Port (基礎設施契約)**：所有對外部系統（資料庫、中介軟體、RPC）的需求一律宣告於 `port/out/`，並以 `Port` 命名稱謂（如 `OrderRepositoryPort`、`AccountClientPort`）。
+- **防腐層 (Anti-Corruption Layer, ACL)**：表現層 Request/Response (`Resource`) 與應用層 DTO/Command 嚴守「純資料載體 (Pure Data Carrier)」職責，嚴禁於資料對象內部撰寫轉換邏輯；所有物件轉換一律交由獨立的 `assembler/` 轉換器承擔。
+
+### 4. 嚴格之物件命名與職責分工 (9 大命名規範)
+專案內所有物件命名必須嚴格遵循下表，確保代碼具備自我解釋能力與架構一致性：
+| 類別 | 命名規範 | 架構職責說明 | 範例 |
+| :--- | :--- | :--- | :--- |
+| **Request** | `V + N + Resource` | 表現層對外接收的請求載體 | `CreateOrderResource`, `DeductStorageResource` |
+| **Response** | `N + Ved + Resource` | 表現層對外回傳的回應載體 | `OrderCreatedResource`, `StorageRetrievedResource` |
+| **Event** | `N + Ved + Event` | 領域狀態變更時發布的領域事件 | `OrderCreatedEvent`, `StockDeductedEvent` |
+| **Command** | `V + N + Command` | 應用層寫入或變更狀態之命令載體 | `CreateOrderCommand`, `DeductStorageCommand` |
+| **Query** | `V + N + Query` | 應用層只讀查詢條件之載體 | `GetOrderQuery`, `GetStorageQuery` |
+| **DTO** | `N + Gotten/Searched + Result` | 應用層查詢與業務處理結果傳輸物件 | `OrderGottenResult`, `StorageGottenResult` |
+| **Projection** | `N + Gotten/Searched + View` | 應用層特定視圖投影物件 | `OrderGottenView` |
+| **Port** | `in: ... + UseCase`<br>`out: ... + Port` | 六角形架構之輸入業務契約與輸出外部合約 | `CreateOrderUseCase`, `StorageRepositoryPort` |
+| **Adapter** | `in: ... + ApplicationService`<br>`out: ... + Adapter` | 實作 Inbound UseCase 服務與 Outbound Port 適配器 | `OrderApplicationService`, `StorageRepositoryAdapter` |
+
+### 5. 全鏈路可觀測性與即時業務查詢架構
+- **業務語意查詢 API**：各微服務針對其領域實體暴露以業務識別碼為依據的查詢端點（`GET /api/storage/{productId}`、`GET /api/account/{userId}`、`GET /api/order/{orderId}`），使 E2E 驗證與運維排查完全透明化。
+- **自動基準數據校準架構**：微服務內建 `DataInitializationConfig`，於 Application 啟動階段自動校驗並修復測試基準數據，重啟即自動恢復至標準測試狀態。
 
 ---
 
-## 二、 系統全景與服務拓撲
+## 二、 技術棧與中介軟體整合矩陣 (Technology Stack & Infrastructure)
+
+本專案將所有框架、技術相依與中介軟體獨立於業務領域之外，集中配置與組裝於基礎設施層：
+
+| 維度分類 | 技術組件 / 中介軟體 | 版本選型 | 在架構中的職責與應用 |
+| :--- | :--- | :--- | :--- |
+| **核心語言** | **Java (OpenJDK)** | `21 (LTS)` | 基礎運行環境，利用虛擬執行緒 (Virtual Threads)、Record 與 Pattern Matching 特性提升高並發處理能力 |
+| **微服務底座** | **Spring Boot** | `3.3.4` | 微服務基座、自動配置引擎與技術組裝層 (The Dirtiest Layer) |
+| **雲原生微服務** | **Spring Cloud** | `2023.0.3` | 微服務全鏈路生態基礎架構 |
+| **微服務治理** | **Spring Cloud Alibaba** | `2023.0.1.2` | 整合 Alibaba 開源微服務生態（Nacos & Seata 核心適配） |
+| **分散式事務協調** | **Apache Seata** | `2.0.0` | 核心分散式事務解決方案：<br/>• **Seata Server (TC)**：Netty RPC (`8091`) 狀態管理與二階段協調<br/>• **Seata Client (TM/RM)**：AOP 事務切面、DataSourceProxy 與 TCC 攔截器 |
+| **服務註冊與配置** | **Alibaba Nacos** | `2.3.2` | 微服務註冊發現、健康檢查、叢集路由動態推播與集中化配置中心 (`8848`) |
+| **API 網關** | **Spring Cloud Gateway** | `4.1.5` | 統一微服務訪問入口 (`8080`)，負責基於路徑的動態路由轉發、全局 CORS 跨域處理與請求限流 |
+| **聲明式 RPC 呼叫** | **Spring Cloud OpenFeign** | `4.1.3` | 跨微服務 HTTP 呼叫，客製化 `RequestInterceptor` 自動提取並透傳 `TX_XID` 全局事務上下文 |
+| **持久化 ORM 引擎** | **Spring Data JPA / Hibernate** | `3.3.4` / `6.5+` | Jakarta Persistence API 規範實作，負責基礎設施層 ORM 實體映射與事務存取 |
+| **高效能連線池** | **Alibaba Druid** | `1.2.23` | 分散式資料庫連線池，提供 SQL 監控、防 SQL 注入過濾器，並與 Seata DataSourceProxy 無縫整合 |
+| **關聯式資料庫** | **MySQL Server** | `8.0.33` | 多庫實體隔離 (`3307`)：<br/>• `seata_server` (TC 狀態庫)<br/>• `seata_order` (訂單庫)<br/>• `seata_storage` (庫存與 undo_log 庫)<br/>• `seata_account` (帳戶與 TCC 控制庫) |
+| **分散式快取與鎖** | **Redis** | `7.2` | 高可用快取與分散式並發控制基礎設施 (`6379`) |
+| **API 文檔與除錯** | **Springdoc OpenAPI (Swagger)** | `2.6.0` | 自動解析控制器產生 OpenAPI 3.0 規範文檔與互動式 Swagger UI 介面 |
+| **容器化編排** | **Docker & Docker Compose** | `24+` / `v2` | 一鍵式本機中介軟體編排 (`docker-compose.yml`)，自動掛載全量 SQL 初始化指令碼 |
+
+---
+
+## 三、 系統全景與服務拓撲
 
 ### 1. 架構循序與拓撲圖
 
@@ -180,7 +226,7 @@ graph TB
 
 ---
 
-## 三、 業務與 RPC API 快速規格表
+## 四、 業務與 RPC API 快速規格表
 
 ### 1. 跨微服務業務查詢 API (Business Query APIs)
 
@@ -204,7 +250,7 @@ graph TB
 
 ---
 
-## 四、 5 分鐘快速啟動與上手指南
+## 五、 5 分鐘快速啟動與上手指南
 
 ### 步驟 1：啟動基礎設施容器 (MySQL, Nacos, Seata TC, Redis)
 
@@ -231,7 +277,7 @@ mvn clean install -DskipTests
 
 ---
 
-## 五、 端到端 (E2E) 核心測試情境
+## 六、 端到端 (E2E) 核心測試情境
 
 詳細時序圖與測試步驟請參閱完整的 [03-end-to-end-verification-guide.md](file:///d:/桌面/MonoRepository/seata-architecture/docs/guide/03-end-to-end-verification-guide.md)。
 
@@ -279,7 +325,7 @@ curl -X POST http://localhost:8080/api/order/create `
 
 ---
 
-## 六、 專案目錄與模組職責說明
+## 七、 專案目錄與模組職責說明
 
 ```
 seata-architecture/
@@ -306,7 +352,7 @@ seata-architecture/
 
 ---
 
-## 七、 深度架構文檔導覽 (Docs Index)
+## 八、 深度架構文檔導覽 (Docs Index)
 
 如需進一步瞭解底層原理與技術選型，請參閱本專案收錄的架構技術白皮書：
 

@@ -153,6 +153,7 @@ Seata 支援四種事務模式，涵蓋不同的業務場景與效能權衡：
 - **解決 JPA 延遲 Flush 與批處理衝突**：避免使用資料庫自增（`IDENTITY`）迫使 JPA 提前發送單條 `INSERT` 打斷批處理並打亂 Seata 截獲時機。
 - **純粹演算法實作 (`shared-module`)**：實作標準 64-bit [SnowflakeIdGenerator](file:///d:/桌面/MonoRepository/seata-architecture/shared-module/src/main/java/com/seata/demo/shared/util/SnowflakeIdGenerator.java)，包含 41-bit 時間戳、5-bit 資料中心、5-bit 工作節點與 12-bit 序列號，具備 5ms 內時鐘抖動自旋保護。
 - **六角形契約解耦 (`order-service`)**：應用層透過 [IdGeneratorPort](file:///d:/桌面/MonoRepository/seata-architecture/order-service/src/main/java/com/seata/demo/order/application/port/out/IdGeneratorPort.java) 宣告主鍵需求，由基礎設施層 [SnowflakeIdGeneratorAdapter](file:///d:/桌面/MonoRepository/seata-architecture/order-service/src/main/java/com/seata/demo/order/infrastructure/adapter/SnowflakeIdGeneratorAdapter.java) 實作，使聚合根實體在持久化前即具備明確業務主鍵，完全保持 DDD 領域模型之純粹性。
+- **詳細設計文檔**：參閱完整白皮書 [09. 分散式雪花演算法 (Snowflake) 架構設計與企業級落地技術白皮書](file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/09-distributed-id-snowflake-design.md)。
 
 ---
 
@@ -369,4 +370,5 @@ seata-architecture/
 6. [06. 實戰整合手冊 (Spring Cloud Alibaba & MySQL)](file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/06-integration-guide.md)
 7. [07. Spring Boot 3.3.4 + JPA 微服務落地設計文件](file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/07-spring-boot-jpa-seata-design.md)
 8. [08. 微服務數量規格、中間件選型與全鏈路介接架構文件](file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/08-microservices-topology-and-middleware-integration.md)
-9. [端到端 (E2E) 實戰測試指南 (時序圖 / API 契約 / 資料庫前後驗證)](file:///d:/桌面/MonoRepository/seata-architecture/docs/guide/03-end-to-end-verification-guide.md)
+9. [09. 分散式雪花演算法 (Snowflake) 架構設計與企業級落地技術白皮書](file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/09-distributed-id-snowflake-design.md)
+10. [端到端 (E2E) 實戰測試指南 (時序圖 / API 契約 / 資料庫前後驗證)](file:///d:/桌面/MonoRepository/seata-architecture/docs/guide/03-end-to-end-verification-guide.md)

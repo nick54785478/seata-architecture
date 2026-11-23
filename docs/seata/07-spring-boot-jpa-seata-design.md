@@ -78,6 +78,7 @@ graph LR
      - **純粹核心演算法 (`shared-module`)**：實作標準 64-bit [SnowflakeIdGenerator.java](file:///d:/桌面/MonoRepository/seata-architecture/shared-module/src/main/java/com/seata/demo/shared/util/SnowflakeIdGenerator.java)，包含 41-bit 時間戳、5-bit 資料中心 ID、5-bit 工作節點 ID 與 12-bit 序列號。內建**時鐘回撥自旋安全機制**（5ms 內時鐘抖動自動等待追平，防範重複 ID）。
      - **六角形架構解耦 (`order-service`)**：應用層透過 [IdGeneratorPort.java](file:///d:/桌面/MonoRepository/seata-architecture/order-service/src/main/java/com/seata/demo/order/application/port/out/IdGeneratorPort.java) 宣告主鍵生成契約，由基礎設施層 [SnowflakeIdGeneratorAdapter.java](file:///d:/桌面/MonoRepository/seata-architecture/order-service/src/main/java/com/seata/demo/order/infrastructure/adapter/SnowflakeIdGeneratorAdapter.java) 注入執行，確保 DDD 聚合根 `Order` 維持 Pure Java。
      - **Redis 角色說明**：雪花演算法原生**不需要強依賴 Redis** 即可在本地記憶體高速生成（單機每秒破百萬 ID 且零網路延遲）。在極大規模動態彈性伸縮（如 K8s HPA）場景下，可選利用 Redis 自動分配 0~31 之 WorkerID；本專案已在 `docker-compose.yml` 中預設編排健全之 Redis 7.2 容器。
+     - **詳細架構白皮書**：完整原理解析、位元運算公式、NTP 時鐘防禦與 Redis 角色分工請參閱 [09. 分散式雪花演算法 (Snowflake) 架構設計與企業級落地技術白皮書](file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/09-distributed-id-snowflake-design.md)。
 3. **資料源代理配置**：
    - Spring Boot 3.x 中引入 Jakarta EE 命名空間（`jakarta.persistence.*`），確保 HikariCP 數據源被 Seata `DataSourceProxy` 正確包裝。
 

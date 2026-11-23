@@ -72,9 +72,12 @@ graph LR
 1. **JPA 一級快取與延遲 Flush 問題**：
    - **現象**：Hibernate 預設會在事務即將提交時才執行批次 Flush。若業務方法結束時尚未 Flush，Seata 的 DataSource Proxy 攔截器無法在分支事務註冊階段拿到實際執行的 SQL。
    - **解決規範**：在所有參與 Seata AT 模式的分支更新操作中，必須使用 `saveAndFlush()`，或手動呼叫 `entityManager.flush()`，強制將 SQL 下推到 JDBC 連線。
-2. **主鍵生成策略（Primary Key Generation）**：
-   - 避免使用 `GenerationType.IDENTITY`（依賴資料庫自增可能導致 JPA 在 `persist` 時被迫提前打斷批處理以獲取 ID）。
-   - **架構規範**：全面採用應用層**雪花演算法（Snowflake ID）**或 `GenerationType.SEQUENCE`，使實體在持久化前即具備明確主鍵，方便 Seata 精準鎖定行記錄。
+2. **主鍵生成策略（Primary Key Generation）與雪花演算法實作**：
+   - **避免自增主鍵**：避免使用 `GenerationType.IDENTITY`（依賴資料庫自增會迫使 JPA 在 `persist` 時提前發送單條 `INSERT` 打斷批處理，導致 Seata DataSourceProxy 截獲時機紊亂，且不利於全局事務在持久化前精確掌握行記錄標識）。
+   - **雪花演算法落地實作**：
+     - **純粹核心演算法 (`shared-module`)**：實作標準 64-bit [SnowflakeIdGenerator.java](file:///d:/桌面/MonoRepository/seata-architecture/shared-module/src/main/java/com/seata/demo/shared/util/SnowflakeIdGenerator.java)，包含 41-bit 時間戳、5-bit 資料中心 ID、5-bit 工作節點 ID 與 12-bit 序列號。內建**時鐘回撥自旋安全機制**（5ms 內時鐘抖動自動等待追平，防範重複 ID）。
+     - **六角形架構解耦 (`order-service`)**：應用層透過 [IdGeneratorPort.java](file:///d:/桌面/MonoRepository/seata-architecture/order-service/src/main/java/com/seata/demo/order/application/port/out/IdGeneratorPort.java) 宣告主鍵生成契約，由基礎設施層 [SnowflakeIdGeneratorAdapter.java](file:///d:/桌面/MonoRepository/seata-architecture/order-service/src/main/java/com/seata/demo/order/infrastructure/adapter/SnowflakeIdGeneratorAdapter.java) 注入執行，確保 DDD 聚合根 `Order` 維持 Pure Java。
+     - **Redis 角色說明**：雪花演算法原生**不需要強依賴 Redis** 即可在本地記憶體高速生成（單機每秒破百萬 ID 且零網路延遲）。在極大規模動態彈性伸縮（如 K8s HPA）場景下，可選利用 Redis 自動分配 0~31 之 WorkerID；本專案已在 `docker-compose.yml` 中預設編排健全之 Redis 7.2 容器。
 3. **資料源代理配置**：
    - Spring Boot 3.x 中引入 Jakarta EE 命名空間（`jakarta.persistence.*`），確保 HikariCP 數據源被 Seata `DataSourceProxy` 正確包裝。
 

@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.seata.demo.order.application.dto.query.GetOrderQuery;
 import com.seata.demo.order.application.dto.result.OrderGottenResult;
 import com.seata.demo.order.application.port.out.AccountClientPort;
+import com.seata.demo.order.application.port.out.IdGeneratorPort;
 import com.seata.demo.order.application.port.out.OrderRepositoryPort;
 import com.seata.demo.order.application.port.out.StorageClientPort;
 import com.seata.demo.order.domain.order.aggregate.root.Order;
@@ -42,6 +43,9 @@ class GetOrderUseCaseTest {
     @Mock
     private AccountClientPort accountClientPort;
 
+    @Mock
+    private IdGeneratorPort idGeneratorPort;
+
     private OrderApplicationService orderApplicationService;
 
     @BeforeEach
@@ -49,7 +53,8 @@ class GetOrderUseCaseTest {
         orderApplicationService = new OrderApplicationService(
                 orderRepositoryPort,
                 storageClientPort,
-                accountClientPort
+                accountClientPort,
+                idGeneratorPort
         );
     }
 

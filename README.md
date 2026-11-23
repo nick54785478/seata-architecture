@@ -149,6 +149,11 @@ Seata 支援四種事務模式，涵蓋不同的業務場景與效能權衡：
 - **業務語意查詢 API**：各微服務針對其領域實體暴露以業務識別碼為依據的查詢端點（`GET /api/storage/{productId}`、`GET /api/account/{userId}`、`GET /api/order/{orderId}`），使 E2E 驗證與運維排查完全透明化。
 - **自動基準數據校準架構**：微服務內建 `DataInitializationConfig`，於 Application 啟動階段自動校驗並修復測試基準數據，重啟即自動恢復至標準測試狀態。
 
+### 6. 分散式雪花演算法 (Snowflake ID) 與主鍵策略
+- **解決 JPA 延遲 Flush 與批處理衝突**：避免使用資料庫自增（`IDENTITY`）迫使 JPA 提前發送單條 `INSERT` 打斷批處理並打亂 Seata 截獲時機。
+- **純粹演算法實作 (`shared-module`)**：實作標準 64-bit [SnowflakeIdGenerator](file:///d:/桌面/MonoRepository/seata-architecture/shared-module/src/main/java/com/seata/demo/shared/util/SnowflakeIdGenerator.java)，包含 41-bit 時間戳、5-bit 資料中心、5-bit 工作節點與 12-bit 序列號，具備 5ms 內時鐘抖動自旋保護。
+- **六角形契約解耦 (`order-service`)**：應用層透過 [IdGeneratorPort](file:///d:/桌面/MonoRepository/seata-architecture/order-service/src/main/java/com/seata/demo/order/application/port/out/IdGeneratorPort.java) 宣告主鍵需求，由基礎設施層 [SnowflakeIdGeneratorAdapter](file:///d:/桌面/MonoRepository/seata-architecture/order-service/src/main/java/com/seata/demo/order/infrastructure/adapter/SnowflakeIdGeneratorAdapter.java) 實作，使聚合根實體在持久化前即具備明確業務主鍵，完全保持 DDD 領域模型之純粹性。
+
 ---
 
 ## 二、 技術棧與中介軟體整合矩陣 (Technology Stack & Infrastructure)

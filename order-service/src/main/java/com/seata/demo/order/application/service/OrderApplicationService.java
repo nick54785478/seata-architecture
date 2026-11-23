@@ -1,6 +1,5 @@
 package com.seata.demo.order.application.service;
 
-import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,7 @@ import com.seata.demo.order.application.dto.result.OrderGottenResult;
 import com.seata.demo.order.application.port.in.CreateOrderUseCase;
 import com.seata.demo.order.application.port.in.GetOrderUseCase;
 import com.seata.demo.order.application.port.out.AccountClientPort;
+import com.seata.demo.order.application.port.out.IdGeneratorPort;
 import com.seata.demo.order.application.port.out.OrderRepositoryPort;
 import com.seata.demo.order.application.port.out.StorageClientPort;
 import com.seata.demo.order.domain.order.aggregate.root.Order;
@@ -40,20 +40,23 @@ public class OrderApplicationService implements CreateOrderUseCase, GetOrderUseC
     private final OrderRepositoryPort orderRepositoryPort;
     private final StorageClientPort storageClientPort;
     private final AccountClientPort accountClientPort;
+    private final IdGeneratorPort idGeneratorPort;
 
     public OrderApplicationService(OrderRepositoryPort orderRepositoryPort,
                                    StorageClientPort storageClientPort,
-                                   AccountClientPort accountClientPort) {
+                                   AccountClientPort accountClientPort,
+                                   IdGeneratorPort idGeneratorPort) {
         this.orderRepositoryPort = orderRepositoryPort;
         this.storageClientPort = storageClientPort;
         this.accountClientPort = accountClientPort;
+        this.idGeneratorPort = idGeneratorPort;
     }
 
     /**
      * 開啟全局事務 (TM 角色)
      * 1. 調用庫存微服務扣庫存 (AT 模式)
      * 2. 調用帳戶微服務凍結金額 (TCC 模式 Try)
-     * 3. 本地持久化訂單實體 (AT 模式 JPA)
+     * 3. 本地持久化訂單實體 (AT 模式 JPA，採用分散式雪花演算法生成主鍵)
      * 4. 支援人為模擬異常，觸發全鏈路分散式回滾
      */
     @Override
@@ -71,8 +74,8 @@ public class OrderApplicationService implements CreateOrderUseCase, GetOrderUseC
         log.info("[OrderApplicationService] 遠程調用帳戶服務預備凍結資金 (TCC Try)...");
         accountClientPort.preparePayment(command.getUserId(), command.getPayAmount());
 
-        // 3. 本地持久化訂單實體 (AT 模式 JPA saveAndFlush)
-        long generatedOrderId = System.currentTimeMillis() * 1000 + ThreadLocalRandom.current().nextInt(1000);
+        // 3. 本地持久化訂單實體 (透過雪花演算法產生唯一業務主鍵)
+        long generatedOrderId = idGeneratorPort.nextId();
         Order order = Order.create(
                 OrderId.of(generatedOrderId),
                 UserId.of(command.getUserId()),

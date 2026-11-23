@@ -70,8 +70,8 @@ class GetAccountUseCaseTest {
         // Then
         Assertions.assertNotNull(result);
         Assertions.assertEquals(userId, result.getUserId());
-        Assertions.assertEquals(new BigDecimal("9500.00"), result.getBalance());
-        Assertions.assertEquals(BigDecimal.ZERO, result.getFreezeAmount());
+        Assertions.assertEquals(0, result.getBalance().compareTo(new BigDecimal("9500.00")));
+        Assertions.assertEquals(0, result.getFreezeAmount().compareTo(BigDecimal.ZERO));
         Mockito.verify(accountRepositoryPort, Mockito.times(1)).findByUserId(UserId.of(userId));
     }
 

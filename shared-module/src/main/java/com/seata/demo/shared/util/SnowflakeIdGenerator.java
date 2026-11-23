@@ -32,15 +32,16 @@ import java.net.NetworkInterface;
  * <b>【時鐘回撥防禦機制 (Clock Drift Handling)】</b><br>
  * 當系統時間受 NTP（網路時間協議）伺服器同步校時而向後倒流時：
  * <ul>
- *   <li><b>微小時鐘抖動 (offset &le; 5ms)</b>：執行緒透過 {@link #wait(long)} / 自旋等待，主動追平時間戳後繼續發號。</li>
+ *   <li><b>微小時鐘抖動 (offset &le; 5ms)</b>：執行緒透過 {@link Object#wait(long)} / 自旋等待，主動追平時間戳後繼續發號。</li>
  *   <li><b>重大時鐘回撥 (offset &gt; 5ms)</b>：立即拋出 {@link IllegalStateException} 硬性阻斷，拒絕發號以防重複 ID 污染金融資產數據。</li>
  * </ul>
  * <p>
  * <b>【節點識別碼自適應推算 (Adaptive Fingerprint)】</b><br>
  * 提供無參建構子，自動抓取本機網卡 MAC 位址與 JVM 作業系統進程 PID 計算機房與節點 ID，在容器化或本地測試無配置時自動保障不衝突。
+ * <p>
+ * 參閱架構白皮書：09. 分散式雪花演算法技術白皮書 (docs/seata/09-distributed-id-snowflake-design.md)
  *
  * @author Seata Architecture Demo Team
- * @see <a href="file:///d:/桌面/MonoRepository/seata-architecture/docs/seata/09-distributed-id-snowflake-design.md">09. 分散式雪花演算法技術白皮書</a>
  */
 public class SnowflakeIdGenerator {
 
@@ -282,7 +283,7 @@ public class SnowflakeIdGenerator {
     /**
      * 依據本機 JVM 進程識別碼 (PID) 與資料中心特徵計算機器節點識別碼 (Worker ID)
      * <p>
-     * 提取 {@link ManagementFactory#getRuntimeMXBean()} 之進程標識名稱（如 {@code 12345@hostname}），
+     * 提取 {@link ManagementFactory#getRuntimeMXBean()} 之進程識別名稱（格式如 "PID@hostname"），
      * 進行 HashCode 計算並取模，若環境異常則預設回傳 1L。
      *
      * @param datacenterId 資料中心機房 ID

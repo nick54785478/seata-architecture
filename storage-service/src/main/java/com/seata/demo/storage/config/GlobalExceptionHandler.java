@@ -81,10 +81,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 攔截全局未處理例外
+     * 攔截全局未處理例外與嚴重錯誤 (含 Error 與 Throwable)
      */
-    @ExceptionHandler(Exception.class)
-    public Result<Void> handleGenericException(Exception ex) {
+    @ExceptionHandler(Throwable.class)
+    public Result<Void> handleGenericThrowable(Throwable ex) {
         log.error("[StorageService] 系統未預期內部例外", ex);
         return Result.failure(500, "庫存服務內部異常: " + ex.getMessage());
     }

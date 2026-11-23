@@ -98,10 +98,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 攔截全局未處理例外
+     * 攔截全局未處理例外與嚴重錯誤 (含 Error 與 Throwable)
      */
-    @ExceptionHandler(Exception.class)
-    public Result<Void> handleGenericException(Exception ex) {
+    @ExceptionHandler(Throwable.class)
+    public Result<Void> handleGenericThrowable(Throwable ex) {
         Throwable rootCause = getRootCause(ex);
         if (rootCause instanceof BalanceInsufficientException bie) {
             return handleBalanceInsufficientException(bie);

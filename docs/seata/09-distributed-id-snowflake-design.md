@@ -191,7 +191,7 @@ flowchart TD
     SnowflakeIdGeneratorAdapter -->|"委託底層雪花演算法"| SnowflakeIdGenerator
     OrderApplicationService -->|"呼叫發號契約"| IdGeneratorPort
     OrderApplicationService -->|"構造領域聚合根 (傳入 OrderId)"| Order
-    Order *--|"聚合持有"| OrderId
+    Order -->|"聚合持有"| OrderId
 ```
 
 ### 1. 模組分層職責

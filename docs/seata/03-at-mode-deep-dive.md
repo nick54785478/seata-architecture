@@ -10,19 +10,19 @@ AT 模式是 Seata 中應用最廣、設計最巧妙的模式。本文深入剖�
 
 ```mermaid
 flowchart TD
-    Start([業務執行業務 SQL]) --> Parse[1. SQL 解析器解析語法樹]
-    Parse --> QueryBefore[2. 構建 SELECT 語句查詢 Before Image]
-    QueryBefore --> SaveBefore[儲存更新前狀態: money = 500]
-    SaveBefore --> ExecSQL[3. 執行業務 UPDATE SQL]
-    ExecSQL --> QueryAfter[4. 構建 SELECT 語句查詢 After Image]
-    QueryAfter --> SaveAfter[儲存更新後狀態: money = 400]
-    SaveAfter --> BuildUndo[5. 組裝 UndoLog 資訊 (前後鏡像快照)]
-    BuildUndo --> ReqLock[6. 向 TC 申請全局行鎖 (account:1)]
-    ReqLock --> CheckLock{鎖是否獲取成功?}
-    CheckLock -- 否 (重試超時) --> RollbackLocal[回滾本地事務，拋出異常]
-    CheckLock -- 是 --> InsertUndo[7. 插入 undo_log 表]
-    InsertUndo --> CommitLocal[8. 提交本地事務 (業務更新 + UndoLog 同時提交)]
-    CommitLocal --> ReportTC[9. 匯報分支事務執行成功至 TC]
+    Start(["業務執行業務 SQL"]) --> Parse["1. SQL 解析器解析語法樹"]
+    Parse --> QueryBefore["2. 構建 SELECT 語句查詢 Before Image"]
+    QueryBefore --> SaveBefore["儲存更新前狀態: money = 500"]
+    SaveBefore --> ExecSQL["3. 執行業務 UPDATE SQL"]
+    ExecSQL --> QueryAfter["4. 構建 SELECT 語句查詢 After Image"]
+    QueryAfter --> SaveAfter["儲存更新後狀態: money = 400"]
+    SaveAfter --> BuildUndo["5. 組裝 UndoLog 資訊 (前後鏡像快照)"]
+    BuildUndo --> ReqLock["6. 向 TC 申請全局行鎖 (account:1)"]
+    ReqLock --> CheckLock{"鎖是否獲取成功?"}
+    CheckLock -- "否 (重試超時)" --> RollbackLocal["回滾本地事務，拋出異常"]
+    CheckLock -- "是" --> InsertUndo["7. 插入 undo_log 表"]
+    InsertUndo --> CommitLocal["8. 提交本地事務 (業務更新 + UndoLog 同時提交)"]
+    CommitLocal --> ReportTC["9. 匯報分支事務執行成功至 TC"]
 ```
 
 ---

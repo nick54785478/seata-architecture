@@ -168,59 +168,30 @@ if (timestamp < lastTimestamp) {
 本專案嚴格遵循 [.agents/AGENTS.md](file:///d:/桌面/MonoRepository/seata-architecture/.agents/AGENTS.md) 規範，將雪花演算法與業務領域完整解耦：
 
 ```mermaid
-classDiagram
-    direction TB
-    
+flowchart TD
     subgraph SharedModule["共享核心模組 (shared-module)"]
-        class SnowflakeIdGenerator {
-            +Long nextId()
-            -tilNextMillis(lastTimestamp)
-            -timeGen()
-        }
+        SnowflakeIdGenerator["SnowflakeIdGenerator<br/>+ nextId() : Long<br/>- tilNextMillis(lastTimestamp)<br/>- timeGen()"]
     end
     
     subgraph ApplicationLayer["訂單應用層 (order-service / application)"]
-        class IdGeneratorPort {
-            <<Interface / Outbound Port>>
-            +Long nextId()*
-        }
-        class OrderApplicationService {
-            -IdGeneratorPort idGeneratorPort
-            -OrderRepositoryPort orderRepositoryPort
-            +createOrder(CreateOrderCommand) OrderCreatedResult
-        }
+        IdGeneratorPort["&laquo;Outbound Port&raquo;<br/><b>IdGeneratorPort</b><br/>+ nextId() : Long"]
+        OrderApplicationService["<b>OrderApplicationService</b><br/>- IdGeneratorPort idGeneratorPort<br/>- OrderRepositoryPort orderRepositoryPort<br/>+ createOrder(command)"]
     end
     
     subgraph InfrastructureLayer["基礎設施層 (order-service / infrastructure)"]
-        class SnowflakeIdGeneratorAdapter {
-            <<Outbound Adapter>>
-            -SnowflakeIdGenerator generator
-            +Long nextId()
-        }
+        SnowflakeIdGeneratorAdapter["&laquo;Outbound Adapter&raquo;<br/><b>SnowflakeIdGeneratorAdapter</b><br/>- SnowflakeIdGenerator generator<br/>+ nextId() : Long"]
     end
     
     subgraph DomainLayer["純粹領域層 (order-service / domain)"]
-        class Order {
-            <<Aggregate Root>>
-            -OrderId id
-            -UserId userId
-            -ProductId productId
-            -Quantity count
-            -Money amount
-            +create(...)
-        }
-        class OrderId {
-            <<Value Object>>
-            -Long value
-            +of(Long)
-        }
+        Order["&laquo;Aggregate Root&raquo;<br/><b>Order</b><br/>- OrderId id<br/>- UserId userId<br/>- ProductId productId<br/>- Quantity count<br/>- Money amount<br/>+ create(...)"]
+        OrderId["&laquo;Value Object&raquo;<br/><b>OrderId</b><br/>- Long value<br/>+ of(Long) : OrderId"]
     end
     
-    IdGeneratorPort <|.. SnowflakeIdGeneratorAdapter : 實作 Outbound Port
-    SnowflakeIdGeneratorAdapter --> SnowflakeIdGenerator : 委託底層雪花演算法
-    OrderApplicationService --> IdGeneratorPort : 呼叫發號契約
-    OrderApplicationService --> Order : 構造領域聚合根 (傳入 OrderId)
-    Order *-- OrderId : 聚合持有
+    SnowflakeIdGeneratorAdapter -.->|"實作 Outbound Port"| IdGeneratorPort
+    SnowflakeIdGeneratorAdapter -->|"委託底層雪花演算法"| SnowflakeIdGenerator
+    OrderApplicationService -->|"呼叫發號契約"| IdGeneratorPort
+    OrderApplicationService -->|"構造領域聚合根 (傳入 OrderId)"| Order
+    Order *--|"聚合持有"| OrderId
 ```
 
 ### 1. 模組分層職責

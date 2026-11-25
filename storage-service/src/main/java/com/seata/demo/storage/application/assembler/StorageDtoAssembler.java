@@ -6,12 +6,11 @@ import com.seata.demo.storage.domain.storage.aggregate.root.Storage;
 /**
  * 庫存 DTO 轉換器 (Storage DTO Assembler)
  * 嚴守單一職責原則，負責領域模型與 DTO 的相互映射轉換。
- *
- * @author Seata Architecture Demo Team
  */
 public final class StorageDtoAssembler {
 
-    private StorageDtoAssembler() {}
+    private StorageDtoAssembler() {
+    }
 
     /**
      * 將 Storage 領域聚合根轉換為 StorageGottenResult DTO

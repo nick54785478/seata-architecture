@@ -27,8 +27,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 /**
  * 訂單表現層 REST 控制器 (Order REST Controller)
  * 接收下單請求，呼叫 CreateOrderUseCase 發起全局事務；接收查詢請求，呼叫 GetOrderUseCase 返回訂單詳情。
- *
- * @author Seata Architecture Demo Team
  */
 @Tag(name = "訂單服務 API (Order Service)", description = "發起 Seata 全局分散式事務 (@GlobalTransactional)，協調整合 Storage AT 庫存扣減與 Account TCC 資金扣款，並提供訂單業務查詢")
 @RestController
@@ -50,11 +48,9 @@ public class OrderController {
      * @return 統一回應
      */
     @Operation(summary = "建立新訂單 (發起 Seata 分散式事務)", description = "建立訂單並透過 RPC 呼叫扣減庫存 (AT) 與凍結資金 (TCC)。可藉由 simulateError=true 觸發後續異常以驗證全局回滾。")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "下單成功或業務處理完成"),
-            @ApiResponse(responseCode = "400", description = "請求參數驗證失敗"),
-            @ApiResponse(responseCode = "500", description = "分散式事務處理異常或已觸發回滾")
-    })
+    @ApiResponse(responseCode = "200", description = "下單成功或業務處理完成")
+    @ApiResponse(responseCode = "400", description = "請求參數驗證失敗")
+    @ApiResponse(responseCode = "500", description = "分散式事務處理異常或已觸發回滾")
     @PostMapping("/create")
     public Result<OrderCreatedResource> createOrder(@Validated @RequestBody CreateOrderResource resource) {
         CreateOrderCommand command = OrderResourceAssembler.toCommand(resource);
@@ -80,10 +76,8 @@ public class OrderController {
      * @return 統一回應
      */
     @Operation(summary = "查詢訂單詳情 (業務查詢 API)", description = "依據訂單識別碼查詢訂單資料與狀態")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "查詢成功"),
-            @ApiResponse(responseCode = "404", description = "查無此訂單")
-    })
+    @ApiResponse(responseCode = "200", description = "查詢成功")
+    @ApiResponse(responseCode = "404", description = "查無此訂單")
     @GetMapping("/{orderId}")
     public Result<OrderRetrievedResource> getOrder(@PathVariable("orderId") Long orderId) {
         GetOrderQuery query = GetOrderQuery.builder().orderId(orderId).build();

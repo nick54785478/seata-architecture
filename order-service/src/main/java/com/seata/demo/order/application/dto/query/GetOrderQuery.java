@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
  * 查詢訂單 Query (Get Order Query)
  * 命名規範 3-5: V + N + Query
  * 純資料載體。
- *
- * @author Seata Architecture Demo Team
  */
 @Getter
 @Builder

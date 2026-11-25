@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
  * 帳戶詳情查詢回應載體 (Account Retrieved Resource)
  * 命名規範 3-2: N + Ved + Resource
  * 位於 Presentation 層，純資料載體。
- *
- * @author Seata Architecture Demo Team
  */
 @Getter
 @Builder

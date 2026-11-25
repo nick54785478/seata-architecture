@@ -8,12 +8,11 @@ import com.seata.demo.order.presentation.resource.out.OrderRetrievedResource;
 
 /**
  * 訂單表現層資源轉換器 (Order Resource Assembler)
- *
- * @author Seata Architecture Demo Team
  */
 public final class OrderResourceAssembler {
 
-    private OrderResourceAssembler() {}
+    private OrderResourceAssembler() {
+    }
 
     public static CreateOrderCommand toCommand(CreateOrderResource resource) {
         if (resource == null) {

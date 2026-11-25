@@ -9,8 +9,6 @@ import com.seata.demo.storage.domain.storage.exception.StockInsufficientExceptio
 /**
  * 庫存聚合根 (Storage Aggregate Root)
  * 純 Java 實作，遵循 DDD 規範：嚴禁使用 Lombok 註解，屬性完全封裝，透過具備業務語意的行為方法進行異動。
- *
- * @author Seata Architecture Demo Team
  */
 public class Storage {
 
@@ -46,7 +44,8 @@ public class Storage {
      */
     public StockDeductedEvent deduct(Quantity deductCount) {
         if (!this.residue.isGreaterThanOrEqualTo(deductCount)) {
-            throw new StockInsufficientException(this.productId.getValue(), deductCount.getValue(), this.residue.getValue());
+            throw new StockInsufficientException(this.productId.getValue(), deductCount.getValue(),
+                    this.residue.getValue());
         }
 
         this.residue = this.residue.subtract(deductCount);

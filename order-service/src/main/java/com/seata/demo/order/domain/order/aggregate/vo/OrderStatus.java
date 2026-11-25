@@ -2,8 +2,6 @@ package com.seata.demo.order.domain.order.aggregate.vo;
 
 /**
  * 訂單狀態列舉值物件 (Order Status Enum Value Object)
- *
- * @author Seata Architecture Demo Team
  */
 public enum OrderStatus {
 

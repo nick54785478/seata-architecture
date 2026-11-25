@@ -3,8 +3,6 @@ package com.seata.demo.order.application.port.out;
 /**
  * 遠程庫存微服務呼叫 Outbound Port 介面 (Storage Client Port)
  * 命名規範 3-8: ... + Port
- *
- * @author Seata Architecture Demo Team
  */
 public interface StorageClientPort {
 

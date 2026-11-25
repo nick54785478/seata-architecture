@@ -5,8 +5,6 @@ import java.math.BigDecimal;
 /**
  * 帳戶餘額不足領域例外 (Balance Insufficient Domain Exception)
  * 當扣減或凍結金額大於可用餘額時拋出。
- *
- * @author Seata Architecture Demo Team
  */
 public class BalanceInsufficientException extends RuntimeException {
 

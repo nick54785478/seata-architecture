@@ -17,8 +17,6 @@ import feign.FeignException;
  * 訂單服務全局例外處理器 (Order Global Exception Handler)
  * 位於 Configuration 層，統一攔截 Controller 與事務拋出之各類領域例外、業務狀態例外與模擬例外，
  * 確保在觸發 Seata 全局回滾後，能夠向客戶端輸出結構化且具備業務語意的 Result 響應。
- *
- * @author Seata Architecture Demo Team
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

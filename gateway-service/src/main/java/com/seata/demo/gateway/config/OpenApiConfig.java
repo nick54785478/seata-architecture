@@ -13,9 +13,8 @@ import io.swagger.v3.oas.models.info.License;
 
 /**
  * 網關微服務 OpenAPI 3.0 配置 (Gateway Service OpenAPI Configuration)
- * 位於 Clean Architecture 的 Configuration Layer，作為集中式 Swagger UI 入口，匯聚下游所有微服務之 API 規格。
- *
- * @author Seata Architecture Demo Team
+ * 位於 Clean Architecture 的 Configuration Layer，作為集中式 Swagger UI 入口，匯聚下游所有微服務之
+ * API 規格。
  */
 @Configuration
 public class OpenApiConfig {
@@ -42,7 +41,8 @@ public class OpenApiConfig {
 
     /**
      * 自動重定向 WebFilter
-     * 當使用者訪問 /swagger-ui/index.html 或 /swagger-ui 時，自動 302 重定向至 WebFlux 標準路徑 /webjars/swagger-ui/index.html，避免白畫面。
+     * 當使用者訪問 /swagger-ui/index.html 或 /swagger-ui 時，自動 302 重定向至 WebFlux 標準路徑
+     * /webjars/swagger-ui/index.html，避免白畫面。
      *
      * @return WebFilter
      */

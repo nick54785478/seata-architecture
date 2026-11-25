@@ -9,8 +9,6 @@ import com.seata.demo.account.infrastructure.persistence.account.entity.TccRecor
 
 /**
  * TCC 控制表記錄 JPA 介面
- *
- * @author Seata Architecture Demo Team
  */
 @Repository
 public interface TccRecordJpaRepository extends JpaRepository<TccRecordJpaEntity, TccRecordCompositeKey> {

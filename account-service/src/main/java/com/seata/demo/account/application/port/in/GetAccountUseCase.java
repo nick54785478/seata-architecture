@@ -7,8 +7,6 @@ import com.seata.demo.account.application.dto.result.AccountGottenResult;
  * 查詢帳戶資產業務 UseCase Inbound Port (Get Account UseCase)
  * 命名規範 3-8: in : ... + UseCase
  * 定義查詢用戶可用餘額與凍結金額之業務合約。
- *
- * @author Seata Architecture Demo Team
  */
 public interface GetAccountUseCase {
 

@@ -11,9 +11,7 @@ import com.seata.demo.shared.util.SnowflakeIdGenerator;
  * 命名規範 3-9: ... + Adapter
  * 實作應用層 IdGeneratorPort，將 shared-module 中的 SnowflakeIdGenerator 適配為 Spring Component。
  * 支援透過 Spring 配置檔自訂工作節點 (workerId) 與資料中心 (datacenterId)。
- *
- * @author Seata Architecture Demo Team
- */
+ **/
 @Component
 public class SnowflakeIdGeneratorAdapter implements IdGeneratorPort {
 

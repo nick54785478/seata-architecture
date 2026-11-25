@@ -6,8 +6,6 @@ import com.seata.demo.order.application.dto.result.OrderGottenResult;
 /**
  * 建立訂單案例 Inbound Port 介面 (Create Order UseCase)
  * 命名規範 3-8: ... + UseCase
- *
- * @author Seata Architecture Demo Team
  */
 public interface CreateOrderUseCase {
 

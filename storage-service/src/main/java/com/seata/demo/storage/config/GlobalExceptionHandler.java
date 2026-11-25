@@ -15,8 +15,6 @@ import com.seata.demo.storage.domain.storage.exception.StockInsufficientExceptio
 /**
  * 庫存服務全局例外處理器 (Storage Global Exception Handler)
  * 位於 Configuration 層，統一攔截 Controller 拋出之領域例外與系統例外，轉換為標準 Result 響應。
- *
- * @author Seata Architecture Demo Team
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,7 +25,8 @@ public class GlobalExceptionHandler {
      * 攔截查無商品庫存領域例外 (StorageNotFoundException)
      */
     @ExceptionHandler(com.seata.demo.storage.domain.storage.exception.StorageNotFoundException.class)
-    public Result<Void> handleStorageNotFoundException(com.seata.demo.storage.domain.storage.exception.StorageNotFoundException ex) {
+    public Result<Void> handleStorageNotFoundException(
+            com.seata.demo.storage.domain.storage.exception.StorageNotFoundException ex) {
         log.warn("[StorageService] 查無庫存業務例外: {}", ex.getMessage());
         return Result.failure(404, ex.getMessage());
     }
@@ -53,7 +52,7 @@ public class GlobalExceptionHandler {
     /**
      * 攔截請求參數校驗例外
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
+    @ExceptionHandler({ MethodArgumentNotValidException.class, BindException.class })
     public Result<Void> handleValidationException(Exception ex) {
         String errorMsg = "參數驗證失敗";
         if (ex instanceof MethodArgumentNotValidException manv) {

@@ -13,8 +13,6 @@ import com.seata.demo.shared.constant.TccStatus;
 /**
  * TCC 控制表記錄 Outbound 適配器 (TCC Record Repository Adapter)
  * 命名規範 3-9: ... + Adapter
- *
- * @author Seata Architecture Demo Team
  */
 @Component
 public class TccRecordRepositoryAdapter implements TccRecordRepositoryPort {

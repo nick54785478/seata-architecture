@@ -9,8 +9,6 @@ import lombok.Setter;
 
 /**
  * TCC 記錄複合主鍵類 (TCC Record Composite Key)
- *
- * @author Seata Architecture Demo Team
  */
 @Getter
 @Setter
@@ -25,8 +23,10 @@ public class TccRecordCompositeKey implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         TccRecordCompositeKey that = (TccRecordCompositeKey) o;
         return Objects.equals(xid, that.xid) && Objects.equals(branchId, that.branchId);
     }

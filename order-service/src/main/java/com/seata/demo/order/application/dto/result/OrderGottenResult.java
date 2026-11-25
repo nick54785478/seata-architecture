@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
  * 命名規範 3-6: N + Gotten/Searched + Result
  * 純資料載體。
  *
- * @author Seata Architecture Demo Team
  */
 @Getter
 @Builder

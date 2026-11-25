@@ -24,7 +24,6 @@ import com.seata.demo.account.domain.account.exception.AccountNotFoundException;
  * 查詢帳戶資產業務案例單元測試 (Get Account UseCase Unit Test)
  * 遵循規範 5: 使用 BDD 與 Gherkin 語法撰寫測試描述，涵蓋正常查詢與查無記錄之異常分支。
  *
- * @author Seata Architecture Demo Team
  */
 @ExtendWith(MockitoExtension.class)
 class GetAccountUseCaseTest {

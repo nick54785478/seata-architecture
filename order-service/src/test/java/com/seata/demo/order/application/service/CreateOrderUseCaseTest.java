@@ -22,7 +22,6 @@ import com.seata.demo.order.domain.order.aggregate.root.Order;
  * 建立訂單案例單元測試 (Create Order UseCase Unit Test)
  * 遵循規範 5: 使用 BDD 與 Gherkin 語法撰寫測試描述，涵蓋正常路徑與模擬異常路徑。
  *
- * @author Seata Architecture Demo Team
  */
 @ExtendWith(MockitoExtension.class)
 class CreateOrderUseCaseTest {
@@ -47,8 +46,7 @@ class CreateOrderUseCaseTest {
                 orderRepositoryPort,
                 storageClientPort,
                 accountClientPort,
-                idGeneratorPort
-        );
+                idGeneratorPort);
     }
 
     /**

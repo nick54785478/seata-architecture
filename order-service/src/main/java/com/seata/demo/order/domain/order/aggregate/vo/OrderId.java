@@ -6,8 +6,6 @@ import java.util.Objects;
 /**
  * 訂單唯一識別標識值物件 (Order ID Value Object)
  * 純 Java 實作，無外層框架依賴。
- *
- * @author Seata Architecture Demo Team
  */
 public final class OrderId implements Serializable {
 

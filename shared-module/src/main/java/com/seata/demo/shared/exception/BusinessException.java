@@ -3,8 +3,6 @@ package com.seata.demo.shared.exception;
 /**
  * 通用業務例外 (Base Business Exception)
  * 位於 Shared Module，提供跨微服務標準化之業務錯誤代碼與訊息載體。
- *
- * @author Seata Architecture Demo Team
  */
 public class BusinessException extends RuntimeException {
 

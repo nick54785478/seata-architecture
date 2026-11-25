@@ -7,9 +7,7 @@ import com.seata.demo.order.infrastructure.persistence.order.entity.OrderJpaEnti
 
 /**
  * 訂單 Spring Data JPA 資料庫存取介面
- *
- * @author Seata Architecture Demo Team
- */
+ **/
 @Repository
 public interface OrderJpaRepository extends JpaRepository<OrderJpaEntity, Long> {
 }

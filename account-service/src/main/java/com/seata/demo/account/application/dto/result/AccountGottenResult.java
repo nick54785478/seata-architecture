@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
  * 帳戶查詢結果 DTO (Account Gotten Result)
  * 命名規範 3-6: N + Gotten/Searched + Result
  * 純資料載體，不含業務邏輯。
- *
- * @author Seata Architecture Demo Team
  */
 @Getter
 @Builder

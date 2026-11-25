@@ -6,12 +6,11 @@ import com.seata.demo.account.domain.account.aggregate.root.Account;
 /**
  * 帳戶 DTO 轉換器 (Account DTO Assembler)
  * 位於 Application 層，嚴守單一職責原則，負責領域模型與 DTO 的映射轉換。
- *
- * @author Seata Architecture Demo Team
  */
 public final class AccountDtoAssembler {
 
-    private AccountDtoAssembler() {}
+    private AccountDtoAssembler() {
+    }
 
     /**
      * 將 Account 領域聚合根轉換為 AccountGottenResult DTO

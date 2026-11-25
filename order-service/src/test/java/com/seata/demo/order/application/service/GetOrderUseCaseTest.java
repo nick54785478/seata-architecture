@@ -29,7 +29,6 @@ import com.seata.demo.order.domain.order.exception.OrderNotFoundException;
  * 查詢訂單業務案例單元測試 (Get Order UseCase Unit Test)
  * 遵循規範 5: 使用 BDD 與 Gherkin 語法撰寫測試描述，涵蓋正常查詢與查無訂單之異常分支。
  *
- * @author Seata Architecture Demo Team
  */
 @ExtendWith(MockitoExtension.class)
 class GetOrderUseCaseTest {
@@ -54,8 +53,7 @@ class GetOrderUseCaseTest {
                 orderRepositoryPort,
                 storageClientPort,
                 accountClientPort,
-                idGeneratorPort
-        );
+                idGeneratorPort);
     }
 
     /**
@@ -75,8 +73,7 @@ class GetOrderUseCaseTest {
                 UserId.of(10001L),
                 ProductId.of(20001L),
                 Quantity.of(2),
-                Money.of(new BigDecimal("500.00"))
-        );
+                Money.of(new BigDecimal("500.00")));
 
         Mockito.when(orderRepositoryPort.findById(OrderId.of(orderId)))
                 .thenReturn(Optional.of(order));

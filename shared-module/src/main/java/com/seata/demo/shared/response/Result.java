@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
  * 統一 API 回傳載體 (Unified API Response Wrapper)
  *
  * @param <T> 響應數據主體類型
- * @author Seata Architecture Demo Team
  */
 @Data
 @Builder

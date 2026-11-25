@@ -6,8 +6,6 @@ import java.util.Objects;
 /**
  * 庫存數量值物件 (Quantity Value Object)
  * 純 Java 實作，無外層框架依賴。
- *
- * @author Seata Architecture Demo Team
  */
 public final class Quantity implements Serializable {
 
@@ -51,8 +49,10 @@ public final class Quantity implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Quantity quantity = (Quantity) o;
         return Objects.equals(value, quantity.value);
     }

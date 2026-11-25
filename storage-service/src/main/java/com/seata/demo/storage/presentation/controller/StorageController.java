@@ -27,8 +27,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 /**
  * 庫存表現層 REST 控制器 (Storage REST Controller)
  * 接收 HTTP 請求，透過 Assembler 轉換為 Command/Query，呼叫 UseCase 介面並回傳統一 Result。
- *
- * @author Seata Architecture Demo Team
  */
 @Tag(name = "庫存服務 API (Storage Service)", description = "提供庫存扣減與業務查詢功能，作為 Seata AT 模式資源管理器 (RM)，透過 DataSourceProxy 保障本地事務與全局事務協同")
 @RestController
@@ -78,7 +76,8 @@ public class StorageController {
     public Result<StorageDeductedResource> deductStorage(@Validated @RequestBody DeductStorageResource resource) {
         DeductStorageCommand command = StorageResourceAssembler.toCommand(resource);
         deductStorageUseCase.deductStorage(command);
-        StorageDeductedResource response = StorageResourceAssembler.toResource(resource.getProductId(), resource.getCount());
+        StorageDeductedResource response = StorageResourceAssembler.toResource(resource.getProductId(),
+                resource.getCount());
         return Result.success(response);
     }
 }

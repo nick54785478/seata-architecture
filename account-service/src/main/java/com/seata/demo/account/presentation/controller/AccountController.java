@@ -26,8 +26,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 /**
  * 帳戶表現層 REST 控制器 (Account REST Controller)
  * 包含 TCC 一階段 Try HTTP 介面與帳戶資產業務查詢介面。
- *
- * @author Seata Architecture Demo Team
  */
 @Tag(name = "帳戶服務 API (Account TCC Service)", description = "提供帳戶資產管理與業務查詢，作為 Seata TCC 模式資源管理器 (RM)，實作兩階段自定義 Try-Confirm-Cancel")
 @RestController
@@ -55,12 +53,14 @@ public class AccountController {
             @ApiResponse(responseCode = "404", description = "找不到該用戶帳戶 (AccountNotFoundException)")
     })
     @PostMapping("/tcc/prepare")
-    public Result<AccountPaymentPreparedResource> preparePayment(@Validated @RequestBody PrepareAccountPaymentResource resource) {
+    public Result<AccountPaymentPreparedResource> preparePayment(
+            @Validated @RequestBody PrepareAccountPaymentResource resource) {
         boolean success;
         try {
             success = accountTccAction.prepare(null, resource.getUserId(), resource.getAmount());
         } catch (RuntimeException ex) {
-            // Seata TCC 代理切面 (AdapterInvocationWrapper) 會將 Try 拋出的領域例外包裝成 RuntimeException("try to proceed invocation error", cause)
+            // Seata TCC 代理切面 (AdapterInvocationWrapper) 會將 Try 拋出的領域例外包裝成
+            // RuntimeException("try to proceed invocation error", cause)
             // 此處將真實的底層例外拆箱拋出，以利表現層與全域例外處理器精準捕捉業務語意
             if (ex.getCause() instanceof RuntimeException runtimeCause) {
                 throw runtimeCause;
@@ -71,7 +71,8 @@ public class AccountController {
         if (!success) {
             return Result.failure("資金凍結失敗或已被取消！");
         }
-        AccountPaymentPreparedResource response = AccountResourceAssembler.toResource(resource.getUserId(), resource.getAmount());
+        AccountPaymentPreparedResource response = AccountResourceAssembler.toResource(resource.getUserId(),
+                resource.getAmount());
         return Result.success(response);
     }
 

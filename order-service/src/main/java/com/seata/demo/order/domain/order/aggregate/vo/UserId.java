@@ -5,8 +5,6 @@ import java.util.Objects;
 
 /**
  * 用戶識別標識值物件 (User ID Value Object)
- *
- * @author Seata Architecture Demo Team
  */
 public final class UserId implements Serializable {
 

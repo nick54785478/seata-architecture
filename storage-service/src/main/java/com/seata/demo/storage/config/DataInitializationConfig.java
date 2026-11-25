@@ -15,8 +15,6 @@ import com.seata.demo.storage.infrastructure.persistence.storage.repository.Stor
  * 庫存服務資料初始化配置 (Storage Data Initialization Configuration)
  * 位於 Configuration 層，在微服務啟動時自動確保商品庫存資料回歸初始狀態，並清理歷史 undo_log，
  * 保證分散式事務測試每次啟動皆能有乾淨可預期的初始資料。
- *
- * @author Seata Architecture Demo Team
  */
 @Configuration
 @ConditionalOnProperty(name = "app.init-data.enabled", havingValue = "true", matchIfMissing = true)
@@ -38,7 +36,7 @@ public class DataInitializationConfig {
      * 註冊啟動初始化任務
      *
      * @param storageJpaRepository 庫存 JPA Repository
-     * @param jdbcTemplate JDBC 範本
+     * @param jdbcTemplate         JDBC 範本
      * @return CommandLineRunner
      */
     @Bean
@@ -50,13 +48,9 @@ public class DataInitializationConfig {
 
             // 1. 初始化或重置測試商品庫存 (productId: 20001, total: 100, used: 0, residue: 100)
             StorageJpaEntity storage = storageJpaRepository.findByProductId(DEFAULT_PRODUCT_ID)
-                    .orElseGet(() -> StorageJpaEntity.builder()
-                            .productId(DEFAULT_PRODUCT_ID)
-                            .build());
+                    .orElseGet(() -> StorageJpaEntity.create(DEFAULT_PRODUCT_ID, DEFAULT_TOTAL_STORAGE));
 
-            storage.setTotal(DEFAULT_TOTAL_STORAGE);
-            storage.setUsed(0);
-            storage.setResidue(DEFAULT_TOTAL_STORAGE);
+            storage.reset(DEFAULT_TOTAL_STORAGE);
             storageJpaRepository.saveAndFlush(storage);
 
             // 2. 清理歷史 undo_log 表，避免舊交易殘留日誌影響 Seata AT 模式

@@ -2,6 +2,7 @@ package com.seata.demo.order.infrastructure.adapter;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 import com.seata.demo.order.application.port.out.OrderRepositoryPort;
@@ -18,8 +19,6 @@ import com.seata.demo.order.infrastructure.persistence.order.repository.OrderJpa
 /**
  * 訂單儲存庫 Outbound 適配器 (Order Repository Adapter)
  * 命名規範 3-9: ... + Adapter
- *
- * @author Seata Architecture Demo Team
  */
 @Component
 public class OrderRepositoryAdapter implements OrderRepositoryPort {

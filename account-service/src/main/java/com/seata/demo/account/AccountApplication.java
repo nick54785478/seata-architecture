@@ -7,7 +7,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 /**
  * 帳戶微服務啟動主類別 (Account Service Application)
  *
- * @author Seata Architecture Demo Team
  */
 @SpringBootApplication
 @EnableDiscoveryClient

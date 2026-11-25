@@ -8,8 +8,6 @@ import com.seata.demo.shared.constant.TccStatus;
  * TCC 事務記錄儲存庫 Outbound Port (TCC Record Repository Port)
  * 命名規範 3-8: ... + Port
  * 負責管理 TCC 控制表記錄，提供防空回滾、防懸掛與冪等性校驗能力。
- *
- * @author Seata Architecture Demo Team
  */
 public interface TccRecordRepositoryPort {
 

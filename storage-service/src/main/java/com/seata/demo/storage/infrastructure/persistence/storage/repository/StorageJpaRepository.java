@@ -8,8 +8,6 @@ import com.seata.demo.storage.infrastructure.persistence.storage.entity.StorageJ
 
 /**
  * 庫存 Spring Data JPA 資料庫存取介面 (Storage JPA Repository)
- *
- * @author Seata Architecture Demo Team
  */
 @Repository
 public interface StorageJpaRepository extends JpaRepository<StorageJpaEntity, Long> {

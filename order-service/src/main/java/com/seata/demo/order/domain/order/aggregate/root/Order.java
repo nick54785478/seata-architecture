@@ -11,8 +11,6 @@ import com.seata.demo.order.domain.order.event.OrderCreatedEvent;
 /**
  * 訂單聚合根 (Order Aggregate Root)
  * 純 Java 實作，遵循 DDD 規範：嚴禁使用 Lombok 註解，屬性完全封裝，透過具備業務語意的行為方法進行異動。
- *
- * @author Seata Architecture Demo Team
  */
 public class Order {
 

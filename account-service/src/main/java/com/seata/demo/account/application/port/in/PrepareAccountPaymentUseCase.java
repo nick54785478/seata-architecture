@@ -6,8 +6,6 @@ import com.seata.demo.account.application.dto.command.PrepareAccountPaymentComma
  * 預備帳戶支付 Inbound Port (Prepare Account Payment UseCase)
  * 命名規範 3-8: ... + UseCase
  * TCC 一階段業務合約介面。
- *
- * @author Seata Architecture Demo Team
  */
 public interface PrepareAccountPaymentUseCase {
 

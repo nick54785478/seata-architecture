@@ -23,7 +23,6 @@ import com.seata.demo.storage.domain.storage.exception.StorageNotFoundException;
  * 查詢商品庫存業務案例單元測試 (Get Storage UseCase Unit Test)
  * 遵循規範 5: 使用 BDD 與 Gherkin 語法撰寫測試描述，涵蓋正常查詢與查無記錄之異常分支。
  *
- * @author Seata Architecture Demo Team
  */
 @ExtendWith(MockitoExtension.class)
 class GetStorageUseCaseTest {
@@ -55,8 +54,7 @@ class GetStorageUseCaseTest {
                 ProductId.of(productId),
                 Quantity.of(100),
                 Quantity.of(2),
-                Quantity.of(98)
-        );
+                Quantity.of(98));
 
         Mockito.when(storageRepositoryPort.findByProductId(ProductId.of(productId)))
                 .thenReturn(Optional.of(storage));

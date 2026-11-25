@@ -1,6 +1,7 @@
 package com.seata.demo.order.config;
 
 import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,8 +14,6 @@ import io.swagger.v3.oas.models.servers.Server;
 /**
  * 訂單微服務 OpenAPI 3.0 配置 (Order Service OpenAPI Configuration)
  * 位於 Clean Architecture 的 Configuration Layer (最外層技術配置)，集中管理 Swagger 文檔元數據與規格定義。
- *
- * @author Seata Architecture Demo Team
  */
 @Configuration
 public class OpenApiConfig {

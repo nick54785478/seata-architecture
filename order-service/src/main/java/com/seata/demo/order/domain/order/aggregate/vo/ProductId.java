@@ -5,8 +5,6 @@ import java.util.Objects;
 
 /**
  * 商品識別標識值物件 (Product ID Value Object)
- *
- * @author Seata Architecture Demo Team
  */
 public final class ProductId implements Serializable {
 

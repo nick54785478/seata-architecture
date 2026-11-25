@@ -8,8 +8,6 @@ import java.util.Objects;
 /**
  * 金額值物件 (Money Value Object)
  * 純 Java 實作，精確到小數點後兩位，無外層框架依賴。
- *
- * @author Seata Architecture Demo Team
  */
 public final class Money implements Serializable {
 
@@ -57,8 +55,10 @@ public final class Money implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Money money = (Money) o;
         return Objects.equals(value, money.value);
     }

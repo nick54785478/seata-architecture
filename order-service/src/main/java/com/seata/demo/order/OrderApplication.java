@@ -9,7 +9,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 訂單微服務啟動主類別 (Order Service Application)
  * 啟用 OpenFeign 客戶端與 Nacos 服務發現。
  *
- * @author Seata Architecture Demo Team
  */
 @SpringBootApplication
 @EnableDiscoveryClient

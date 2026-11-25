@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
  * 扣減庫存命令 (Deduct Storage Command)
  * 命名規範 3-4: V + N + Command
  * 純資料載體，不含業務轉換邏輯。
- *
- * @author Seata Architecture Demo Team
  */
 @Getter
 @Builder

@@ -9,8 +9,6 @@ import com.seata.demo.storage.domain.storage.aggregate.vo.ProductId;
  * 命名規範 3-8: ... + Port
  * 定義應用層對持久化基礎設施的要求合約。
  * 嚴禁傳入或回傳任何 ORM Entity 或 JDBC 技術類物件。
- *
- * @author Seata Architecture Demo Team
  */
 public interface StorageRepositoryPort {
 

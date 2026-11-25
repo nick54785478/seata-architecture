@@ -7,8 +7,6 @@ import com.seata.demo.account.presentation.resource.out.AccountPaymentPreparedRe
 
 /**
  * 帳戶表現層資源轉換器 (Account Resource Assembler)
- *
- * @author Seata Architecture Demo Team
  */
 public final class AccountResourceAssembler {
 

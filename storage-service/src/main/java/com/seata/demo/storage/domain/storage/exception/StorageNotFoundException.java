@@ -3,8 +3,6 @@ package com.seata.demo.storage.domain.storage.exception;
 /**
  * 查無商品庫存領域例外 (Storage Not Found Domain Exception)
  * 位於 Domain 層，當查詢不存在之商品庫存時拋出。
- *
- * @author Seata Architecture Demo Team
  */
 public class StorageNotFoundException extends RuntimeException {
 

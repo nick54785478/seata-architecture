@@ -6,8 +6,6 @@ import com.seata.demo.account.application.dto.command.ConfirmAccountPaymentComma
  * 確認帳戶支付 Inbound Port (Confirm Account Payment UseCase)
  * 命名規範 3-8: ... + UseCase
  * TCC 二階段 Confirm 業務合約介面。
- *
- * @author Seata Architecture Demo Team
  */
 public interface ConfirmAccountPaymentUseCase {
 

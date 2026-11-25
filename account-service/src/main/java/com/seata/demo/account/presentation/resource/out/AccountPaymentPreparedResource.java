@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
  * 帳戶支付已預備回應載體 (Account Payment Prepared Resource)
  * 命名規範 3-2: N + Ved + Resource
  * 表現層純資料載體。
- *
- * @author Seata Architecture Demo Team
  */
 @Schema(description = "帳戶支付已預備回應載體")
 @Getter

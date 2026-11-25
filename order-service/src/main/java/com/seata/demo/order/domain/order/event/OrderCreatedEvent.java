@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
  * 訂單已建立領域事件 (Order Created Domain Event)
  * 符合命名規範 3-3: N + Ved + Event
  *
- * @author Seata Architecture Demo Team
  */
 public final class OrderCreatedEvent implements Serializable {
 

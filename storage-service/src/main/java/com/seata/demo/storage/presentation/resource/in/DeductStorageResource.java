@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
  * 扣減庫存請求載體 (Deduct Storage Resource)
  * 命名規範 3-1: V + N + Resource
  * 表現層純資料載體，嚴禁在此實作 toCommand 等轉換邏輯。
- *
- * @author Seata Architecture Demo Team
  */
 @Schema(description = "扣減庫存請求載體")
 @Getter

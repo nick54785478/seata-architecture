@@ -13,8 +13,6 @@ import com.seata.demo.account.infrastructure.persistence.account.repository.Acco
 /**
  * 帳戶儲存庫 Outbound 適配器 (Account Repository Adapter)
  * 命名規範 3-9: ... + Adapter
- *
- * @author Seata Architecture Demo Team
  */
 @Component
 public class AccountRepositoryAdapter implements AccountRepositoryPort {
@@ -42,8 +40,7 @@ public class AccountRepositoryAdapter implements AccountRepositoryPort {
         return new Account(
                 UserId.of(entity.getUserId()),
                 Money.of(entity.getBalance()),
-                Money.of(entity.getFreezeAmount())
-        );
+                Money.of(entity.getFreezeAmount()));
     }
 
     private AccountJpaEntity toEntity(Account domain) {

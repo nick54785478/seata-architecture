@@ -5,8 +5,6 @@ import java.util.Objects;
 
 /**
  * 數量值物件 (Quantity Value Object)
- *
- * @author Seata Architecture Demo Team
  */
 public final class Quantity implements Serializable {
 

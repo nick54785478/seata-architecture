@@ -6,8 +6,6 @@ import java.util.Objects;
 /**
  * 帳戶唯一識別標識值物件 (Account ID Value Object)
  * 純 Java 實作，無外層框架依賴。
- *
- * @author Seata Architecture Demo Team
  */
 public final class AccountId implements Serializable {
 
@@ -32,8 +30,10 @@ public final class AccountId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         AccountId accountId = (AccountId) o;
         return Objects.equals(value, accountId.value);
     }

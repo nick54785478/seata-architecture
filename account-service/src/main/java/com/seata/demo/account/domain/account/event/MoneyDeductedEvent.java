@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 /**
  * 資金已扣除領域事件 (Money Deducted Domain Event)
  * 符合命名規範 3-3: N + Ved + Event
- *
- * @author Seata Architecture Demo Team
  */
 public final class MoneyDeductedEvent implements Serializable {
 

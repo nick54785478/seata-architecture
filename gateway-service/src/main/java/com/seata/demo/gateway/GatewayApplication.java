@@ -6,8 +6,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * 邊界 API 網關微服務啟動主類別 (Gateway Service Application)
- *
- * @author Seata Architecture Demo Team
  */
 @SpringBootApplication
 @EnableDiscoveryClient

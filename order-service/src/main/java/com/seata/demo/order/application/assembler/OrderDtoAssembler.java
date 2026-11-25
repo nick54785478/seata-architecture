@@ -5,8 +5,6 @@ import com.seata.demo.order.domain.order.aggregate.root.Order;
 
 /**
  * 訂單 DTO 轉換器 (Order DTO Assembler)
- *
- * @author Seata Architecture Demo Team
  */
 public final class OrderDtoAssembler {
 

@@ -1,9 +1,5 @@
 package com.seata.demo.order.application.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.seata.demo.order.application.assembler.OrderDtoAssembler;
 import com.seata.demo.order.application.dto.command.CreateOrderCommand;
 import com.seata.demo.order.application.dto.query.GetOrderQuery;
@@ -23,14 +19,15 @@ import com.seata.demo.order.domain.order.aggregate.vo.UserId;
 import com.seata.demo.order.domain.order.exception.OrderNotFoundException;
 import io.seata.core.context.RootContext;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 訂單應用層服務 (Order Application Service)
  * 命名規範 3-9: ... + ApplicationService
  * 實作 CreateOrderUseCase 與 GetOrderUseCase，發起 Seata 全局事務 (@GlobalTransactional)，擔任 TM 協調者。
- *
- * @author Seata Architecture Demo Team
  */
 @Service
 public class OrderApplicationService implements CreateOrderUseCase, GetOrderUseCase {
@@ -64,7 +61,7 @@ public class OrderApplicationService implements CreateOrderUseCase, GetOrderUseC
     public OrderGottenResult createOrder(CreateOrderCommand command) {
         String xid = RootContext.getXID();
         log.info("[OrderApplicationService] 開啟全局事務, XID = {}, UserId = {}, ProductId = {}, Count = {}, Amount = {}",
-                 xid, command.getUserId(), command.getProductId(), command.getCount(), command.getPayAmount());
+                xid, command.getUserId(), command.getProductId(), command.getCount(), command.getPayAmount());
 
         // 1. 遠程調用庫存服務 (AT 模式)
         log.info("[OrderApplicationService] 遠程調用庫存服務扣減庫存...");

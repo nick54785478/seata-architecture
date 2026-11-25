@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
  * 取消帳戶支付命令 (Cancel Account Payment Command)
  * 命名規範 3-4: V + N + Command
  * TCC 二階段 Cancel 參數載體。
- *
- * @author Seata Architecture Demo Team
  */
 @Getter
 @Builder

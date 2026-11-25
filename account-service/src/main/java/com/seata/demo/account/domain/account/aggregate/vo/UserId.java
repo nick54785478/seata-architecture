@@ -6,8 +6,6 @@ import java.util.Objects;
 /**
  * 用戶識別標識值物件 (User ID Value Object)
  * 純 Java 實作，無外層框架依賴。
- *
- * @author Seata Architecture Demo Team
  */
 public final class UserId implements Serializable {
 
@@ -32,8 +30,10 @@ public final class UserId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         UserId userId = (UserId) o;
         return Objects.equals(value, userId.value);
     }

@@ -24,8 +24,6 @@ import com.seata.demo.storage.domain.storage.exception.StorageNotFoundException;
  * 命名規範 3-9: ... + ApplicationService
  * 實作 DeductStorageUseCase 與 GetStorageUseCase，負責協調領域聚合根與 Outbound Port。
  * 參與 Seata AT 模式分支事務，在一階段本地事務中提交，由 DataSourceProxy 記錄 undo_log。
- *
- * @author Seata Architecture Demo Team
  */
 @Service
 public class StorageApplicationService implements DeductStorageUseCase, GetStorageUseCase {
@@ -61,8 +59,8 @@ public class StorageApplicationService implements DeductStorageUseCase, GetStora
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deductStorage(DeductStorageCommand command) {
-        log.info("[StorageApplicationService] 開始執行庫存扣減, ProductId = {}, Count = {}", 
-                 command.getProductId(), command.getCount());
+        log.info("[StorageApplicationService] 開始執行庫存扣減, ProductId = {}, Count = {}",
+                command.getProductId(), command.getCount());
 
         ProductId productId = ProductId.of(command.getProductId());
         Quantity deductQuantity = Quantity.of(command.getCount());
@@ -78,6 +76,6 @@ public class StorageApplicationService implements DeductStorageUseCase, GetStora
         storageRepositoryPort.save(storage);
 
         log.info("[StorageApplicationService] 庫存扣減成功, ProductId = {}, 扣減量 = {}, 剩餘量 = {}",
-                 event.getProductId(), event.getDeductedQuantity(), event.getRemainingQuantity());
+                event.getProductId(), event.getDeductedQuantity(), event.getRemainingQuantity());
     }
 }

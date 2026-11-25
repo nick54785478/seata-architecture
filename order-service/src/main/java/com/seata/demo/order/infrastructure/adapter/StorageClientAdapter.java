@@ -2,6 +2,7 @@ package com.seata.demo.order.infrastructure.adapter;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
 import com.seata.demo.order.application.port.out.StorageClientPort;
@@ -11,8 +12,6 @@ import com.seata.demo.shared.response.Result;
 /**
  * 遠程庫存微服務 Outbound 適配器 (Storage Client Adapter)
  * 命名規範 3-9: ... + Adapter
- *
- * @author Seata Architecture Demo Team
  */
 @Component
 public class StorageClientAdapter implements StorageClientPort {

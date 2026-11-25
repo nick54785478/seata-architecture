@@ -7,8 +7,6 @@ import com.seata.demo.account.infrastructure.persistence.account.entity.AccountJ
 
 /**
  * 帳戶 Spring Data JPA 資料庫存取介面
- *
- * @author Seata Architecture Demo Team
  */
 @Repository
 public interface AccountJpaRepository extends JpaRepository<AccountJpaEntity, Long> {

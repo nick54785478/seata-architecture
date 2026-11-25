@@ -11,8 +11,6 @@ import com.seata.demo.account.domain.account.exception.BalanceInsufficientExcept
  * 帳戶聚合根 (Account Aggregate Root)
  * 純 Java 實作，遵循 DDD 規範：嚴禁使用 Lombok 註解，屬性完全封裝，透過具備業務語意的行為方法進行異動。
  * 支援 TCC 模式二階段資金凍結、正式劃扣與解凍回退。
- *
- * @author Seata Architecture Demo Team
  */
 public class Account {
 

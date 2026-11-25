@@ -7,8 +7,6 @@ import java.util.Objects;
 
 /**
  * 訂單金額值物件 (Money Value Object)
- *
- * @author Seata Architecture Demo Team
  */
 public final class Money implements Serializable {
 

@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
  * 預備帳戶支付請求載體 (Prepare Account Payment Resource)
  * 命名規範 3-1: V + N + Resource
  * 表現層純資料載體。
- *
- * @author Seata Architecture Demo Team
  */
 @Schema(description = "預備帳戶支付請求載體 (TCC Try 階段)")
 @Getter

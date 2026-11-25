@@ -6,8 +6,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * 庫存微服務啟動主類別 (Storage Service Application)
- *
- * @author Seata Architecture Demo Team
  */
 @SpringBootApplication
 @EnableDiscoveryClient

@@ -16,8 +16,6 @@ import com.seata.demo.storage.infrastructure.persistence.storage.repository.Stor
  * 命名規範 3-9: ... + Adapter
  * 實作應用層 StorageRepositoryPort 介面，協調 Spring Data JPA 進行持久化。
  * 執行 saveAndFlush 確保 Hibernate 即時送出 SQL 供 Seata DataSourceProxy 截獲生成 undo_log。
- *
- * @author Seata Architecture Demo Team
  */
 @Component
 public class StorageRepositoryAdapter implements StorageRepositoryPort {
@@ -48,8 +46,7 @@ public class StorageRepositoryAdapter implements StorageRepositoryPort {
                 ProductId.of(entity.getProductId()),
                 Quantity.of(entity.getTotal()),
                 Quantity.of(entity.getUsed()),
-                Quantity.of(entity.getResidue())
-        );
+                Quantity.of(entity.getResidue()));
     }
 
     private StorageJpaEntity toEntity(Storage domain) {

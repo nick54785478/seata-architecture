@@ -34,13 +34,11 @@ import io.seata.rm.tcc.api.BusinessActionContextParameter;
  * 命名規範 3-9: ... + ApplicationService
  * 實作 Prepare/Confirm/Cancel 業務案例、GetAccountUseCase 與 Seata AccountTccAction 介面。
  * 封裝防空回滾、防業務懸掛與二階段冪等性控制邏輯。
- *
- * @author Seata Architecture Demo Team
  */
 @Service
-public class AccountApplicationService implements 
-        PrepareAccountPaymentUseCase, 
-        ConfirmAccountPaymentUseCase, 
+public class AccountApplicationService implements
+        PrepareAccountPaymentUseCase,
+        ConfirmAccountPaymentUseCase,
         CancelAccountPaymentUseCase,
         GetAccountUseCase,
         AccountTccAction {
@@ -50,8 +48,8 @@ public class AccountApplicationService implements
     private final AccountRepositoryPort accountRepositoryPort;
     private final TccRecordRepositoryPort tccRecordRepositoryPort;
 
-    public AccountApplicationService(AccountRepositoryPort accountRepositoryPort, 
-                                     TccRecordRepositoryPort tccRecordRepositoryPort) {
+    public AccountApplicationService(AccountRepositoryPort accountRepositoryPort,
+            TccRecordRepositoryPort tccRecordRepositoryPort) {
         this.accountRepositoryPort = accountRepositoryPort;
         this.tccRecordRepositoryPort = tccRecordRepositoryPort;
     }
@@ -77,8 +75,8 @@ public class AccountApplicationService implements
 
     @Override
     public boolean prepare(
-            BusinessActionContext context, 
-            @BusinessActionContextParameter(paramName = "userId") Long userId, 
+            BusinessActionContext context,
+            @BusinessActionContextParameter(paramName = "userId") Long userId,
             @BusinessActionContextParameter(paramName = "amount") BigDecimal amount) {
         String xid = context != null ? context.getXid() : "LOCAL_TEST_XID";
         long branchId = context != null ? context.getBranchId() : 1L;
@@ -102,7 +100,7 @@ public class AccountApplicationService implements
         BigDecimal amount = command.getAmount();
 
         log.info("[Account TCC Try] 開始凍結資金. XID = {}, BranchID = {}, UserId = {}, Amount = {}",
-                 xid, branchId, userId, amount);
+                xid, branchId, userId, amount);
 
         // 1. 防業務懸掛校驗：檢查是否已存在 Cancel 狀態記錄
         Optional<TccStatus> statusOpt = tccRecordRepositoryPort.findStatusByXidAndBranchId(xid, branchId);
@@ -166,7 +164,9 @@ public class AccountApplicationService implements
                 xid, branchId, userId, amount);
 
         if (userId == null) {
-            log.warn("[Account TCC Confirm] 檢測到無效或歷史殘留之分支事務 (無法獲取 userId 且本地無 Try 記錄)，直接返回 true 以終止 Seata TC 無限重試. XID = {}, BranchID = {}", xid, branchId);
+            log.warn(
+                    "[Account TCC Confirm] 檢測到無效或歷史殘留之分支事務 (無法獲取 userId 且本地無 Try 記錄)，直接返回 true 以終止 Seata TC 無限重試. XID = {}, BranchID = {}",
+                    xid, branchId);
             return true;
         }
 
@@ -189,12 +189,13 @@ public class AccountApplicationService implements
         BigDecimal amount = command.getAmount();
 
         log.info("[Account TCC Confirm] 開始正式劃扣. XID = {}, BranchID = {}, UserId = {}, Amount = {}",
-                 xid, branchId, userId, amount);
+                xid, branchId, userId, amount);
 
         // 1. 冪等性校驗與空提交處理
         Optional<TccStatus> statusOpt = tccRecordRepositoryPort.findStatusByXidAndBranchId(xid, branchId);
         if (!statusOpt.isPresent()) {
-            log.warn("[Account TCC Confirm] 空提交處理：未找到 Try 記錄 (可能資料已初始化或未執行 Try)，直接返回 true 終止 Seata TC 重試. XID = {}", xid);
+            log.warn("[Account TCC Confirm] 空提交處理：未找到 Try 記錄 (可能資料已初始化或未執行 Try)，直接返回 true 終止 Seata TC 重試. XID = {}",
+                    xid);
             return true;
         }
         if (statusOpt.get() == TccStatus.CONFIRMED) {
@@ -269,7 +270,7 @@ public class AccountApplicationService implements
         BigDecimal amount = command.getAmount();
 
         log.info("[Account TCC Cancel] 開始解凍退款. XID = {}, BranchID = {}, UserId = {}, Amount = {}",
-                 xid, branchId, userId, amount);
+                xid, branchId, userId, amount);
 
         Optional<TccStatus> statusOpt = tccRecordRepositoryPort.findStatusByXidAndBranchId(xid, branchId);
 

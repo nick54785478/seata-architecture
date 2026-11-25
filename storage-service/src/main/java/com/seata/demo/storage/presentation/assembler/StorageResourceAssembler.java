@@ -8,8 +8,6 @@ import com.seata.demo.storage.presentation.resource.out.StorageRetrievedResource
 /**
  * 表現層資源轉換器 (Storage Resource Assembler)
  * 負責 Resource 與 Command/Result 之間的轉換 (Anti-Corruption 防腐層職責)。
- *
- * @author Seata Architecture Demo Team
  */
 public final class StorageResourceAssembler {
 

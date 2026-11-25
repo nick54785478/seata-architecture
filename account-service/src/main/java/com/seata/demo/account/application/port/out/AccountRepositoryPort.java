@@ -7,8 +7,6 @@ import com.seata.demo.account.domain.account.aggregate.vo.UserId;
 /**
  * 帳戶儲存庫 Outbound Port (Account Repository Port)
  * 命名規範 3-8: ... + Port
- *
- * @author Seata Architecture Demo Team
  */
 public interface AccountRepositoryPort {
 

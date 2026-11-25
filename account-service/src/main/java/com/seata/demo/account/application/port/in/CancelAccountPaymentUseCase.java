@@ -6,8 +6,6 @@ import com.seata.demo.account.application.dto.command.CancelAccountPaymentComman
  * 取消帳戶支付 Inbound Port (Cancel Account Payment UseCase)
  * 命名規範 3-8: ... + UseCase
  * TCC 二階段 Cancel 業務合約介面。
- *
- * @author Seata Architecture Demo Team
  */
 public interface CancelAccountPaymentUseCase {
 

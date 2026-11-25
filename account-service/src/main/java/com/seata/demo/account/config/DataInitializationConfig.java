@@ -17,8 +17,6 @@ import com.seata.demo.account.infrastructure.persistence.account.repository.TccR
  * 帳戶服務資料初始化配置 (Account Data Initialization Configuration)
  * 位於 Configuration 層，在微服務啟動時自動確保用戶帳戶資金回歸初始狀態、清理歷史 TCC 事務記錄與 undo_log，
  * 保證每次分散式事務測試皆具備乾淨可預測的初始數據。
- *
- * @author Seata Architecture Demo Team
  */
 @Configuration
 @ConditionalOnProperty(name = "app.init-data.enabled", havingValue = "true", matchIfMissing = true)
@@ -39,9 +37,9 @@ public class DataInitializationConfig {
     /**
      * 註冊啟動初始化任務
      *
-     * @param accountJpaRepository 帳戶 JPA Repository
+     * @param accountJpaRepository   帳戶 JPA Repository
      * @param tccRecordJpaRepository TCC 控制記錄 JPA Repository
-     * @param jdbcTemplate JDBC 範本
+     * @param jdbcTemplate           JDBC 範本
      * @return CommandLineRunner
      */
     @Bean
@@ -54,12 +52,9 @@ public class DataInitializationConfig {
 
             // 1. 初始化或重置預設測試帳戶 (userId: 10001, balance: 10000.00, freezeAmount: 0.00)
             AccountJpaEntity account = accountJpaRepository.findById(DEFAULT_USER_ID)
-                    .orElseGet(() -> AccountJpaEntity.builder()
-                            .userId(DEFAULT_USER_ID)
-                            .build());
+                    .orElseGet(() -> AccountJpaEntity.create(DEFAULT_USER_ID, DEFAULT_BALANCE));
 
-            account.setBalance(DEFAULT_BALANCE);
-            account.setFreezeAmount(BigDecimal.ZERO);
+            account.reset(DEFAULT_BALANCE);
             accountJpaRepository.saveAndFlush(account);
 
             // 2. 清空歷史 TCC 控制記錄表，避免舊有 TRIED/CONFIRMED 記錄干擾後續二階段測試

@@ -14,8 +14,6 @@ import com.seata.demo.order.infrastructure.persistence.order.repository.OrderJpa
  * 訂單服務資料初始化配置 (Order Data Initialization Configuration)
  * 位於 Configuration 層，在微服務啟動時自動清理歷史測試訂單記錄與 undo_log，
  * 確保每一次測試皆從乾淨狀態開始。
- *
- * @author Seata Architecture Demo Team
  */
 @Configuration
 @ConditionalOnProperty(name = "app.init-data.enabled", havingValue = "true", matchIfMissing = true)
@@ -27,7 +25,7 @@ public class DataInitializationConfig {
      * 註冊啟動初始化任務
      *
      * @param orderJpaRepository 訂單 JPA Repository
-     * @param jdbcTemplate JDBC 範本
+     * @param jdbcTemplate       JDBC 範本
      * @return CommandLineRunner
      */
     @Bean

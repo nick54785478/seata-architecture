@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
  * 庫存已扣減回應載體 (Storage Deducted Resource)
  * 命名規範 3-2: N + Ved + Resource
  * 表現層純資料載體，嚴禁在此實作 fromResult 等轉換邏輯。
- *
- * @author Seata Architecture Demo Team
  */
 @Schema(description = "庫存已扣減回應載體")
 @Getter

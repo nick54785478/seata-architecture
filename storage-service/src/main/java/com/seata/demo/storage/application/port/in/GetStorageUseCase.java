@@ -7,8 +7,6 @@ import com.seata.demo.storage.application.dto.result.StorageGottenResult;
  * 查詢商品庫存業務 UseCase Inbound Port (Get Storage UseCase)
  * 命名規範 3-8: in : ... + UseCase
  * 定義查詢商品庫存詳情之業務合約。
- *
- * @author Seata Architecture Demo Team
  */
 public interface GetStorageUseCase {
 

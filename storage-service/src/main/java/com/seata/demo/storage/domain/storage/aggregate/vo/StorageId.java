@@ -6,8 +6,6 @@ import java.util.Objects;
 /**
  * 庫存實體唯一識別標識值物件 (Storage ID Value Object)
  * 純 Java 實作，無外層框架依賴。
- *
- * @author Seata Architecture Demo Team
  */
 public final class StorageId implements Serializable {
 
@@ -32,8 +30,10 @@ public final class StorageId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         StorageId storageId = (StorageId) o;
         return Objects.equals(value, storageId.value);
     }

@@ -15,8 +15,6 @@ import com.seata.demo.shared.response.Result;
 /**
  * 帳戶服務全局例外處理器 (Account Global Exception Handler)
  * 位於 Configuration 層，統一攔截 Controller 拋出之領域例外與系統例外，轉換為標準 Result 響應。
- *
- * @author Seata Architecture Demo Team
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,7 +25,8 @@ public class GlobalExceptionHandler {
      * 攔截查無用戶帳戶領域例外 (AccountNotFoundException)
      */
     @ExceptionHandler(com.seata.demo.account.domain.account.exception.AccountNotFoundException.class)
-    public Result<Void> handleAccountNotFoundException(com.seata.demo.account.domain.account.exception.AccountNotFoundException ex) {
+    public Result<Void> handleAccountNotFoundException(
+            com.seata.demo.account.domain.account.exception.AccountNotFoundException ex) {
         log.warn("[AccountService] 查無帳戶業務例外: {}", ex.getMessage());
         return Result.failure(404, ex.getMessage());
     }
@@ -53,7 +52,7 @@ public class GlobalExceptionHandler {
     /**
      * 攔截請求參數校驗例外
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
+    @ExceptionHandler({ MethodArgumentNotValidException.class, BindException.class })
     public Result<Void> handleValidationException(Exception ex) {
         String errorMsg = "參數驗證失敗";
         if (ex instanceof MethodArgumentNotValidException manv) {

@@ -1,6 +1,7 @@
 package com.seata.demo.order.presentation.resource.in;
 
 import java.math.BigDecimal;
+
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -14,8 +15,6 @@ import lombok.NoArgsConstructor;
  * 建立訂單請求載體 (Create Order Resource)
  * 命名規範 3-1: V + N + Resource
  * 表現層純資料載體。
- *
- * @author Seata Architecture Demo Team
  */
 @Schema(description = "建立訂單請求載體")
 @Getter

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
  * 雪花演算法單元測試 (Snowflake ID Generator Test)
  * 遵循規範 5: 使用 BDD 與 Gherkin 語法撰寫測試描述。
  *
- * @author Seata Architecture Demo Team
  */
 class SnowflakeIdGeneratorTest {
 

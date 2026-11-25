@@ -13,13 +13,16 @@ import java.net.NetworkInterface;
  * <p>
  * <b>【為什麼在 Seata 分散式架構中捨棄資料庫自增 (AUTO_INCREMENT)？】</b><br>
  * 1. <b>避免打斷 JPA / Hibernate 批處理</b>：JPA 對於 {@code GenerationType.IDENTITY} 實體，
- *    被迫在 {@code persist()} 時立即執行單筆 SQL {@code INSERT} 以獲取回填主鍵，完全摧毀 JDBC Batching 批次效能。<br>
+ * 被迫在 {@code persist()} 時立即執行單筆 SQL {@code INSERT} 以獲取回填主鍵，完全摧毀 JDBC Batching
+ * 批次效能。<br>
  * 2. <b>Seata AT 模式前置鏡像需求</b>：在發起全局事務前，實體聚合根必須具備確定性的業務主鍵，
- *    以利於後續在微服務呼叫鏈路（RPC / HTTP Header）、領域事件（Domain Event）與 {@code undo_log} 中精確鎖定記錄。<br>
+ * 以利於後續在微服務呼叫鏈路（RPC / HTTP Header）、領域事件（Domain Event）與 {@code undo_log}
+ * 中精確鎖定記錄。<br>
  * 3. <b>捍衛 DDD 聚合根完整性</b>：聚合根在記憶體中建立之初（In-Memory Creation）就必須具備唯一標識符，
- *    而非落庫後才延遲賦予，確保領域模型生命週期不變性 (Invariants)。
+ * 而非落庫後才延遲賦予，確保領域模型生命週期不變性 (Invariants)。
  * <p>
  * <b>【64-bit 二進位結構佈局 (Bit Layout)】</b>
+ * 
  * <pre>
  * +------+------------------------------------------+----------------+---------------+--------------------+
  * | 1bit |                 41bits                   |     5bits      |     5bits     |       12bits       |
@@ -32,16 +35,16 @@ import java.net.NetworkInterface;
  * <b>【時鐘回撥防禦機制 (Clock Drift Handling)】</b><br>
  * 當系統時間受 NTP（網路時間協議）伺服器同步校時而向後倒流時：
  * <ul>
- *   <li><b>微小時鐘抖動 (offset &le; 5ms)</b>：執行緒透過 {@link Object#wait(long)} / 自旋等待，主動追平時間戳後繼續發號。</li>
- *   <li><b>重大時鐘回撥 (offset &gt; 5ms)</b>：立即拋出 {@link IllegalStateException} 硬性阻斷，拒絕發號以防重複 ID 污染金融資產數據。</li>
+ * <li><b>微小時鐘抖動 (offset &le; 5ms)</b>：執行緒透過 {@link Object#wait(long)} /
+ * 自旋等待，主動追平時間戳後繼續發號。</li>
+ * <li><b>重大時鐘回撥 (offset &gt; 5ms)</b>：立即拋出 {@link IllegalStateException}
+ * 硬性阻斷，拒絕發號以防重複 ID 污染金融資產數據。</li>
  * </ul>
  * <p>
  * <b>【節點識別碼自適應推算 (Adaptive Fingerprint)】</b><br>
  * 提供無參建構子，自動抓取本機網卡 MAC 位址與 JVM 作業系統進程 PID 計算機房與節點 ID，在容器化或本地測試無配置時自動保障不衝突。
  * <p>
  * 參閱架構白皮書：09. 分散式雪花演算法技術白皮書 (docs/seata/09-distributed-id-snowflake-design.md)
- *
- * @author Seata Architecture Demo Team
  */
 public class SnowflakeIdGenerator {
 
@@ -164,12 +167,14 @@ public class SnowflakeIdGenerator {
      * <p>
      * <b>【核心演算四部曲】</b>
      * <ol>
-     *   <li><b>時鐘檢查與回撥防禦</b>：對比當前時間 {@code timestamp} 與 {@code lastTimestamp}，
-     *       若發生倒流在 5ms 內以自旋追平，超過 5ms 則阻斷報錯。</li>
-     *   <li><b>毫秒內序號遞增</b>：若處於同一毫秒，序列號 {@code sequence} 加 1 並與 {@code sequenceMask} 進行位元 AND 運算；
-     *       若溢出（超過 4095）則阻塞等待至下一毫秒。</li>
-     *   <li><b>跨毫秒序號歸零</b>：若時間進入新的一毫秒，將序列號重置為 0L。</li>
-     *   <li><b>64-bit 位元拼裝</b>：透過位移運算 (Shift) 與位元或運算 (Bitwise OR {@code |}) 組合輸出 64-bit Long。</li>
+     * <li><b>時鐘檢查與回撥防禦</b>：對比當前時間 {@code timestamp} 與 {@code lastTimestamp}，
+     * 若發生倒流在 5ms 內以自旋追平，超過 5ms 則阻斷報錯。</li>
+     * <li><b>毫秒內序號遞增</b>：若處於同一毫秒，序列號 {@code sequence} 加 1 並與 {@code sequenceMask}
+     * 進行位元 AND 運算；
+     * 若溢出（超過 4095）則阻塞等待至下一毫秒。</li>
+     * <li><b>跨毫秒序號歸零</b>：若時間進入新的一毫秒，將序列號重置為 0L。</li>
+     * <li><b>64-bit 位元拼裝</b>：透過位移運算 (Shift) 與位元或運算 (Bitwise OR {@code |}) 組合輸出
+     * 64-bit Long。</li>
      * </ol>
      *
      * @return 64 位元長整數唯一識別碼 (Positive Long ID)
@@ -221,7 +226,8 @@ public class SnowflakeIdGenerator {
         lastTimestamp = timestamp;
 
         // 階段三：64 位元位移拼裝組合
-        // (timestamp 偏移 22 位元) | (datacenterId 偏移 17 位元) | (workerId 偏移 12 位元) | sequence
+        // (timestamp 偏移 22 位元) | (datacenterId 偏移 17 位元) | (workerId 偏移 12 位元) |
+        // sequence
         return ((timestamp - twepoch) << timestampLeftShift)
                 | (datacenterId << datacenterIdShift)
                 | (workerId << workerIdShift)
